@@ -2,6 +2,7 @@ package com.eshi.addis.controller;
 
 import com.eshi.addis.dto.RestaurantCategoryDto;
 import com.eshi.addis.dto.HomeDto;
+import com.eshi.addis.dto.RestaurantMenuDto;
 import com.eshi.addis.model.Restaurant;
 import com.eshi.addis.service.RestaurantService;
 import com.eshi.addis.utils.Common;
@@ -23,8 +24,13 @@ public class RestaurantController implements Common<Restaurant, Restaurant> {
         this.service = service;
     }
 
+    @GetMapping("/{id}/mobile")
+    public RestaurantMenuDto getRestaurant(@PathVariable long id){
+        return service.getRestaurant(id);
+    }
+
     @Override
-    public Restaurant store(@Valid Restaurant restaurant) {
+    public Restaurant store(@Valid @RequestBody Restaurant restaurant) {
         return service.store(restaurant);
     }
 
@@ -37,6 +43,7 @@ public class RestaurantController implements Common<Restaurant, Restaurant> {
     public Restaurant show(long id) {
         return service.show(id);
     }
+
 
     public Restaurant update(@PathVariable long id,@Valid @RequestBody Restaurant restaurant) {
         return service.update(id, restaurant);

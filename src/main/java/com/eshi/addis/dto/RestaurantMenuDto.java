@@ -1,16 +1,15 @@
 package com.eshi.addis.dto;
 
-import com.eshi.addis.model.Address;
-import com.eshi.addis.model.Contact;
-import com.eshi.addis.model.Pricing;
+import com.eshi.addis.model.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RestaurantDto {
+public class RestaurantMenuDto {
     private String name;
     private Address address;
     private Contact contact;
@@ -20,4 +19,5 @@ public class RestaurantDto {
     private String description;
     private Pricing pricing;
     private String eat;
+    private List<Category> menuCategories;
 }

@@ -1,6 +1,5 @@
 package com.eshi.addis.dto;
 
-import com.eshi.addis.model.Ingredient;
 import com.eshi.addis.model.Menu;
 import lombok.Data;
 

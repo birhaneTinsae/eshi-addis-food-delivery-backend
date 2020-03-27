@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
 
@@ -13,8 +15,13 @@ public class Restaurant implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    @NotNull(message = "Restaurant name is required")
+    @NotBlank(message = "Restaurant name shouldn't be blank")
     private String name;
     private String coverPic;
+    private String description;
+    @Convert(converter = PricingConverter.class)
+    private Pricing pricing;
     @Convert(converter = StatusConverter.class)
     private Status status;
     @JsonIgnoreProperties(value = {"restaurant"/*,"hibernateLazyInitializer"*/})

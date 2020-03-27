@@ -1,6 +1,7 @@
 package com.eshi.addis.service;
 
 import com.eshi.addis.dto.RestaurantDto;
+import com.eshi.addis.dto.RestaurantMenuDto;
 import com.eshi.addis.model.Category;
 import com.eshi.addis.model.Restaurant;
 import com.eshi.addis.model.Status;
@@ -34,16 +35,17 @@ public class RestaurantService implements Common<Restaurant, Restaurant> {
                 .orElseThrow(() -> new EntityNotFoundException("can't found service provider with " + id));
     }
 
+    public RestaurantDto getServiceProviderDto(long id) {
+        Restaurant restaurant = show(id);
+        RestaurantDto restaurantDto = mapper.map(restaurant, RestaurantDto.class);
+        return restaurantDto;
+    }
+
     public List<RestaurantDto> getServiceProviders() {
         List<RestaurantDto> restaurantDtos = new ArrayList<>();
         restaurantRepository.findAll().forEach(r -> {
-            RestaurantDto dto = mapper.map(r,RestaurantDto.class);//new RestaurantDto();
-//            dto.setAddress(r.getAddress());
-//            dto.setContact(r.getContact());
-//            dto.setRating(r.getRating());
-//            dto.setTotalRating(r.getTotalRating());
-//            dto.setCoverPic(r.getCoverPic());
-//            dto.setName(r.getName());
+            RestaurantDto dto = mapper.map(r, RestaurantDto.class);
+            dto.setEat("20-30 MIN");
             restaurantDtos.add(dto);
 
         });
@@ -99,5 +101,10 @@ public class RestaurantService implements Common<Restaurant, Restaurant> {
     @Override
     public Page<Restaurant> getAll(Pageable pageable) {
         return restaurantRepository.findAll(pageable);
+    }
+
+    public RestaurantMenuDto getRestaurant(long id) {
+        Restaurant restaurant = show(id);
+        return mapper.map(restaurant,RestaurantMenuDto.class);
     }
 }
