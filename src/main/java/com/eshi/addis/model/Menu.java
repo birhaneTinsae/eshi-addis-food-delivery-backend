@@ -32,6 +32,6 @@ public class Menu implements Serializable {
 
     @OneToMany(mappedBy = "menu")
     @JsonIgnoreProperties(value = {"menu"})
-    private List<MenuIngredient> ingredients = new ArrayList<>();
+    private List<MenuIngredient> ingredients;
     private boolean available = true;
 }

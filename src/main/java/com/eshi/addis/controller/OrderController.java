@@ -3,7 +3,7 @@ package com.eshi.addis.controller;
 import com.eshi.addis.service.MenuService;
 import com.eshi.addis.model.Order;
 import com.eshi.addis.model.OrderMenu;
-import com.eshi.addis.model.Status;
+import com.eshi.addis.model.OrderStatus;
 import com.eshi.addis.dto.OrderDto;
 import com.eshi.addis.dto.OrderMenuDto;
 import com.eshi.addis.service.OrderMenuService;
@@ -39,7 +39,7 @@ public class OrderController {
         List<OrderMenuDto> orderMenuDtos = orderDto.getMenus();
         validateProductsExistence(orderMenuDtos);
         Order order = new Order();
-        order.setStatus(Status.PREPARING);
+        order.setOrderStatus(OrderStatus.PREPARING);
         order = this.orderService.create(order);
 
         List<OrderMenu> orderMenus = new ArrayList<>();

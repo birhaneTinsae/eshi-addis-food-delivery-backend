@@ -1,29 +1,30 @@
 package com.eshi.addis.model;
 
-import com.eshi.addis.model.Status;
-
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 import java.util.stream.Stream;
 
 @Converter(autoApply = true)
 public class StatusConverter implements AttributeConverter<Status, Character> {
+
     @Override
-    public Character convertToDatabaseColumn(Status status) {
-        if (status==null) {
+    public Character convertToDatabaseColumn(Status x) {
+        if (x == null) {
             return null;
         }
-        return status.getStatus();
+        return x.getStatus();
     }
 
     @Override
-    public Status convertToEntityAttribute(Character character) {
-        if (character==null) {
+    public Status convertToEntityAttribute(Character y) {
+        if (y == null) {
             return null;
         }
+
         return Stream.of(Status.values())
-                .filter(c -> c.getStatus()==character)
+                .filter(p -> p.getStatus() == y)
                 .findFirst()
                 .orElseThrow(IllegalArgumentException::new);
     }
+
 }

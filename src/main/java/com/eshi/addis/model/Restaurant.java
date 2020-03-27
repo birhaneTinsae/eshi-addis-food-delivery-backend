@@ -15,6 +15,8 @@ public class Restaurant implements Serializable {
     private long id;
     private String name;
     private String coverPic;
+    @Convert(converter = StatusConverter.class)
+    private Status status;
     @JsonIgnoreProperties(value = {"restaurant"/*,"hibernateLazyInitializer"*/})
     @OneToMany(mappedBy = "restaurant")
     private List<Category> menuCategories;
@@ -22,14 +24,18 @@ public class Restaurant implements Serializable {
     private Address address;
     @Embedded
     private Contact contact;
+
     @JsonIgnoreProperties(value = {"restaurant"})
     @OneToMany(mappedBy = "restaurant")
     private List<Branch> branches;
+    @JsonIgnoreProperties(value = {"restaurant"})
     @OneToMany(mappedBy = "restaurant")
     private List<CommentAndRating> commentAndRatings;
-    @OneToMany(mappedBy = "restaurant")
+
     @JsonIgnoreProperties(value = {"restaurant"})
+    @OneToMany(mappedBy = "restaurant")
     private List<Ingredient> ingredients;
+
     @Transient
     private double rating;
     @Transient
@@ -45,6 +51,9 @@ public class Restaurant implements Serializable {
     }
 
     public int getTotalRating(){
-        return getCommentAndRatings().size();
+        if (this.getCommentAndRatings() != null && this.getCommentAndRatings().size() > 0) {
+            return getCommentAndRatings().size();
+        }
+        return 0;
     }
 }
