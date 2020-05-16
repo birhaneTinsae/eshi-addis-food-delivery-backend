@@ -1,6 +1,6 @@
 package com.eshi.addis.dto;
 
-import com.eshi.addis.model.Menu;
+import com.eshi.addis.menu.Menu;
 import lombok.Data;
 
 import java.io.Serializable;

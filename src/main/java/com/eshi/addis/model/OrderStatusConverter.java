@@ -1,5 +1,7 @@
 package com.eshi.addis.model;
 
+import com.eshi.addis.order.OrderStatus;
+
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 import java.util.stream.Stream;

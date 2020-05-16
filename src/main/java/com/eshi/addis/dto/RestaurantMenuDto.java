@@ -1,6 +1,7 @@
 package com.eshi.addis.dto;
 
 import com.eshi.addis.model.*;
+import com.eshi.addis.restaurant.category.Category;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
