@@ -21,8 +21,8 @@ public class Order {
     private long id;
     @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate dateCreated;
-    @Convert(converter = StatusConverter.class)
-    private Status status;
+    @Convert(converter = OrderStatusConverter.class)
+    private OrderStatus orderStatus;
 
     @OneToMany(mappedBy = "pk.order")
     @Valid

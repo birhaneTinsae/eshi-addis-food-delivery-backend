@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
 
@@ -13,8 +15,15 @@ public class Restaurant implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    @NotNull(message = "Restaurant name is required")
+    @NotBlank(message = "Restaurant name shouldn't be blank")
     private String name;
     private String coverPic;
+    private String description;
+    @Convert(converter = PricingConverter.class)
+    private Pricing pricing;
+    @Convert(converter = StatusConverter.class)
+    private Status status;
     @JsonIgnoreProperties(value = {"restaurant"/*,"hibernateLazyInitializer"*/})
     @OneToMany(mappedBy = "restaurant")
     private List<Category> menuCategories;
@@ -22,14 +31,18 @@ public class Restaurant implements Serializable {
     private Address address;
     @Embedded
     private Contact contact;
+
     @JsonIgnoreProperties(value = {"restaurant"})
     @OneToMany(mappedBy = "restaurant")
     private List<Branch> branches;
+    @JsonIgnoreProperties(value = {"restaurant"})
     @OneToMany(mappedBy = "restaurant")
     private List<CommentAndRating> commentAndRatings;
-    @OneToMany(mappedBy = "restaurant")
+
     @JsonIgnoreProperties(value = {"restaurant"})
+    @OneToMany(mappedBy = "restaurant")
     private List<Ingredient> ingredients;
+
     @Transient
     private double rating;
     @Transient
@@ -45,6 +58,9 @@ public class Restaurant implements Serializable {
     }
 
     public int getTotalRating(){
-        return getCommentAndRatings().size();
+        if (this.getCommentAndRatings() != null && this.getCommentAndRatings().size() > 0) {
+            return getCommentAndRatings().size();
+        }
+        return 0;
     }
 }

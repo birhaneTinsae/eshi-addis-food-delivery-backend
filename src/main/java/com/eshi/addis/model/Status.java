@@ -1,8 +1,8 @@
 package com.eshi.addis.model;
 
 public enum Status {
-    SENT('S'), PREPARING('P'), CANCELED('C'), DELIVERED('D');
-    private char status;
+    ACTIVE('A'), PENDING('P'),  DELETED('D');
+    private final char status;
 
     Status(char status) {
         this.status = status;
@@ -11,4 +11,5 @@ public enum Status {
     public char getStatus() {
         return status;
     }
+
 }

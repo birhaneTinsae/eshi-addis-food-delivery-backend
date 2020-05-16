@@ -5,26 +5,27 @@ import javax.persistence.Converter;
 import java.util.stream.Stream;
 
 @Converter(autoApply = true)
-public class StatusConverter implements AttributeConverter<Status, Character> {
+public class PricingConverter implements AttributeConverter<Pricing, Character> {
 
     @Override
-    public Character convertToDatabaseColumn(Status x) {
+    public Character convertToDatabaseColumn(Pricing x) {
         if (x == null) {
             return null;
         }
-        return x.getStatus();
+        return x.getScale();
     }
 
     @Override
-    public Status convertToEntityAttribute(Character y) {
+    public Pricing convertToEntityAttribute(Character y) {
         if (y == null) {
             return null;
         }
 
-        return Stream.of(Status.values())
-                .filter(p -> p.getStatus() == y)
+        return Stream.of(Pricing.values())
+                .filter(p -> p.getScale() == y)
                 .findFirst()
                 .orElseThrow(IllegalArgumentException::new);
     }
 
 }
+

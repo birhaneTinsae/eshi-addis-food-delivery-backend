@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("menus/")
+@RequestMapping("menus")
 public class MenuController {
     private MenuService menuService;
     private RestaurantService restaurantService;
@@ -28,7 +28,7 @@ public class MenuController {
         this.menuSizeService = menuSizeService;
     }
 
-    @PostMapping("service-provider/{id}/category/{categoryId}")
+    @PostMapping("/service-provider/{id}/category/{categoryId}")
     @Transactional
     public Menu create(@PathVariable long id, @PathVariable long categoryId, @RequestBody MenuDto menuDto) {
         Category category = categoryService.getCategory(categoryId);
@@ -64,7 +64,7 @@ public class MenuController {
         return null;
     }
 
-    @GetMapping("service-provider/{id}")
+    @GetMapping("/service-provider/{id}")
     public Iterable<Category> getServiceProviderMenuCategories(@PathVariable long id) {
         return restaurantService.getServiceProviderMenuCategories(id);
     }

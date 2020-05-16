@@ -3,10 +3,13 @@ package com.eshi.addis.service;
 import com.eshi.addis.model.OrderMenu;
 import com.eshi.addis.repository.OrderMenuRepository;
 import com.eshi.addis.utils.Common;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
-public class OrderMenuService implements Common<OrderMenu> {
+public class OrderMenuService implements Common<OrderMenu,OrderMenu> {
     private OrderMenuRepository orderMenuRepository;
 
     public OrderMenuService(OrderMenuRepository orderMenuRepository) {
@@ -21,13 +24,35 @@ public class OrderMenuService implements Common<OrderMenu> {
         return orderMenuRepository.save(orderMenu);
     }
 
+
+
     @Override
-    public Iterable<OrderMenu> getAll() {
-        return orderMenuRepository.findAll();
+    public OrderMenu store(OrderMenu orderMenu) {
+        return null;
     }
 
     @Override
-    public OrderMenu getOne(long id) {
+    public Iterable<OrderMenu> store(List<OrderMenu> t) {
+        return null;
+    }
+
+    @Override
+    public OrderMenu show(long id) {
+        return null;
+    }
+
+    @Override
+    public OrderMenu update(long id, OrderMenu orderMenu) {
+        return null;
+    }
+
+    @Override
+    public boolean delete(long id) {
+        return false;
+    }
+
+    @Override
+    public Iterable<OrderMenu> getAll(Pageable pageable) {
         return null;
     }
 }

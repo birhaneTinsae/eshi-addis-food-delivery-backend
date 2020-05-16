@@ -16,6 +16,8 @@ public class Branch implements Serializable {
     @JsonIgnoreProperties(value = {"branches"})
     @ManyToOne
     private Restaurant restaurant;
+    @Embedded
     private Address address;
+    @Embedded
     private Contact contact;
 }

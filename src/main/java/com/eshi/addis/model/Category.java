@@ -21,6 +21,6 @@ public class Category implements Serializable {
     @JsonIgnoreProperties(value = "category")
     private List<Menu> menus = new ArrayList<>();
     @ManyToOne
-    @JsonIgnoreProperties(value = {"categories"})
+   @JsonIgnore// @JsonIgnoreProperties(value = {"categories"})
     private Restaurant restaurant;
 }
