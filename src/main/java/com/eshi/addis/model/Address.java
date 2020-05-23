@@ -15,7 +15,7 @@ public class Address {
     private String city;
     private String street;
     private String houseNo;
-
+    private String landmark;
     @NotNull(message = "Location is required")
     private Point location;
 }
