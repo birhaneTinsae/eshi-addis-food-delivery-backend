@@ -11,7 +11,7 @@ public class CriteriaParser {
 
         private static Map<String, Operator> ops;
 
-        private static Pattern SpecCriteraRegex = Pattern.compile("^(\\w+?)(" + Joiner.on("|")
+        private static Pattern SpecCriteriaRegex = Pattern.compile("^(\\w+?)(" + Joiner.on("|")
                 .join(SearchOperation.SIMPLE_OPERATION_SET) + ")(\\p{Punct}?)(\\w+?)(\\p{Punct}?)$");
 
         private enum Operator {
@@ -33,7 +33,7 @@ public class CriteriaParser {
             ops = Collections.unmodifiableMap(tempMap);
         }
 
-        private static boolean isHigerPrecedenceOperator(String currOp, String prevOp) {
+        private static boolean isHigherPrecedenceOperator(String currOp, String prevOp) {
             return (ops.containsKey(prevOp) && ops.get(prevOp).precedence >= ops.get(currOp).precedence);
         }
 
@@ -44,7 +44,7 @@ public class CriteriaParser {
 
             Arrays.stream(searchParam.split("\\s+")).forEach(token -> {
                 if (ops.containsKey(token)) {
-                    while (!stack.isEmpty() && isHigerPrecedenceOperator(token, stack.peek()))
+                    while (!stack.isEmpty() && isHigherPrecedenceOperator(token, stack.peek()))
                         output.push(stack.pop()
                                 .equalsIgnoreCase(SearchOperation.OR_OPERATOR) ? SearchOperation.OR_OPERATOR : SearchOperation.AND_OPERATOR);
                     stack.push(token.equalsIgnoreCase(SearchOperation.OR_OPERATOR) ? SearchOperation.OR_OPERATOR : SearchOperation.AND_OPERATOR);
@@ -57,7 +57,7 @@ public class CriteriaParser {
                     stack.pop();
                 } else {
 
-                    Matcher matcher = SpecCriteraRegex.matcher(token);
+                    Matcher matcher = SpecCriteriaRegex.matcher(token);
                     while (matcher.find()) {
                         output.push(new SearchCriteria(matcher.group(1), matcher.group(2), matcher.group(3), matcher.group(4), matcher.group(5)));
                     }

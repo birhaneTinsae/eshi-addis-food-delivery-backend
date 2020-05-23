@@ -40,11 +40,11 @@ public class MenuSpecificationsBuilder {
         return this;
     }
 
-    public Specification<Employee> build() {
+    public Specification<Menu> build() {
         if (params.size() == 0)
             return null;
 
-        Specification<Employee> result = new MenuSpecification(params.get(0));
+        Specification<Menu> result = new MenuSpecification(params.get(0));
 
         for (int i = 1; i < params.size(); i++) {
             result = params.get(i).isOrPredicate()
