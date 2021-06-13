@@ -1,79 +1,113 @@
 package com.eshi.addis.restaurant;
 
-import com.eshi.addis.dto.RestaurantCategoryDto;
-import com.eshi.addis.dto.HomeDto;
-import com.eshi.addis.dto.RestaurantMenuDto;
-import com.eshi.addis.utils.Common;
+import com.eshi.addis.dto.RestaurantDTO;
+import com.eshi.addis.favourite.FavouriteDTO;
+import com.eshi.addis.utils.PaginatedResultsRetrievedEvent;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.geo.Point;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.validation.Valid;
-import java.util.ArrayList;
+import javax.servlet.http.HttpServletResponse;
+
 import java.util.List;
 
+import static com.eshi.addis.utils.Util.dtoMapper;
+import static com.eshi.addis.utils.Util.mapList;
+
 @RestController
-@RequestMapping("service-providers")
-public class RestaurantController implements Common<Restaurant, Restaurant> {
+@RequestMapping("/restaurants")
+@RequiredArgsConstructor
+public class RestaurantController implements RestaurantAPI {
 
-    private RestaurantService service;
+    private final RestaurantService restaurantService;
+    private final ModelMapper modelMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public RestaurantController(RestaurantService service) {
-        this.service = service;
-    }
-
-    @GetMapping("/{id}/mobile")
-    public RestaurantMenuDto getRestaurant(@PathVariable long id){
-        return service.getRestaurant(id);
+    @Override
+    public RestaurantDTO createRestaurant(Restaurant restaurant) {
+        return dtoMapper(restaurantService.createRestaurant(restaurant), RestaurantDTO.class, modelMapper);
     }
 
     @Override
-    public Restaurant store(@Valid @RequestBody Restaurant restaurant) {
-        return service.store(restaurant);
+    public RestaurantDTO getRestaurant(String restaurantId) {
+        return dtoMapper(restaurantService.getRestaurant(restaurantId), RestaurantDTO.class, modelMapper);
     }
 
     @Override
-    public Iterable<Restaurant> store(List<@Valid Restaurant> t) {
-        return service.store(t);
+    public RestaurantDTO updateRestaurant(String restaurantId, Restaurant restaurant) {
+        return dtoMapper(restaurantService.updateRestaurant(restaurantId, restaurant), RestaurantDTO.class, modelMapper);
     }
 
     @Override
-    public Restaurant show(long id) {
-        return service.show(id);
-    }
-
-
-    public Restaurant update(@PathVariable long id,@Valid @RequestBody Restaurant restaurant) {
-        return service.update(id, restaurant);
+    public void deleteRestaurant(String restaurantId) {
+        restaurantService.deleteRestaurant(restaurantId);
     }
 
     @Override
-    public boolean delete(long id) {
-        return service.delete(id);
+    public void uploadCoverPic(String restaurantId, MultipartFile coverPic) {
+        restaurantService.uploadCoverPic(restaurantId, coverPic);
+    }
+
+
+    @Override
+    public ResponseEntity<PagedModel<RestaurantDTO>> getNearbyRestaurants(Pageable pageable, PagedResourcesAssembler assembler, UriComponentsBuilder uriBuilder, HttpServletResponse response, Point customerLocation) {
+        eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<>(
+                RestaurantDTO.class, uriBuilder, response, pageable.getPageNumber(), restaurantService.getNearbyRestaurants(customerLocation, pageable).getTotalPages(), pageable.getPageSize()));
+        return new ResponseEntity<PagedModel<RestaurantDTO>>(assembler.toModel(restaurantService.getNearbyRestaurants(customerLocation, pageable).map(favourite -> dtoMapper(favourite, FavouriteDTO.class, modelMapper))), HttpStatus.OK);
+
     }
 
     @Override
-    public Iterable<Restaurant> getAll(Pageable pageable) {
-        return service.getAll(pageable);
+    public ResponseEntity<PagedModel<RestaurantDTO>> getRecommendedRestaurants(Pageable pageable, PagedResourcesAssembler assembler, UriComponentsBuilder uriBuilder, HttpServletResponse response, String customerId) {
+        eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<>(
+                RestaurantDTO.class, uriBuilder, response, pageable.getPageNumber(), restaurantService.getRecommendedRestaurants(customerId, pageable).getTotalPages(), pageable.getPageSize()));
+        return new ResponseEntity<PagedModel<RestaurantDTO>>(assembler.toModel(restaurantService.getRecommendedRestaurants(customerId, pageable).map(favourite -> dtoMapper(favourite, FavouriteDTO.class, modelMapper))), HttpStatus.OK);
+
     }
 
-    @GetMapping("/home")
-    public HomeDto index(@RequestBody(required = false) Point location) {
-        HomeDto homeDto = new HomeDto();
+    @Override
+    public ResponseEntity<PagedModel<RestaurantDTO>> getNewRestaurants(Pageable pageable, PagedResourcesAssembler assembler, UriComponentsBuilder uriBuilder, HttpServletResponse response) {
+        eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<>(
+                RestaurantDTO.class, uriBuilder, response, pageable.getPageNumber(), restaurantService.getNewRestaurants(pageable).getTotalPages(), pageable.getPageSize()));
+        return new ResponseEntity<PagedModel<RestaurantDTO>>(assembler.toModel(restaurantService.getNewRestaurants(pageable).map(favourite -> dtoMapper(favourite, FavouriteDTO.class, modelMapper))), HttpStatus.OK);
 
-        List<RestaurantCategoryDto> restaurantCategoryDtos = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            RestaurantCategoryDto restaurantCategoryDto = new RestaurantCategoryDto();
-            restaurantCategoryDto.setCategory(getCategories()[i]);
-            restaurantCategoryDto.setRestaurants(service.getRestaurants());
-            restaurantCategoryDtos.add(restaurantCategoryDto);
-        }
-        homeDto.setRestaurantCategories(restaurantCategoryDtos);
-
-        return homeDto;
     }
 
-    public static String[] getCategories() {
-        return new String[]{"Favourite", "Nearby", "Recommended", "New On Eshi"};
+    @Override
+    public ResponseEntity<PagedModel<RestaurantDTO>> getCustomerFavourites(Pageable pageable, PagedResourcesAssembler assembler, UriComponentsBuilder uriBuilder, HttpServletResponse response, String customerId) {
+        eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<>(
+                RestaurantDTO.class, uriBuilder, response, pageable.getPageNumber(), restaurantService.getCustomerFavourites(customerId, pageable).getTotalPages(), pageable.getPageSize()));
+        return new ResponseEntity<PagedModel<RestaurantDTO>>(assembler.toModel(restaurantService.getCustomerFavourites(customerId, pageable).map(favourite -> dtoMapper(favourite, FavouriteDTO.class, modelMapper))), HttpStatus.OK);
+
     }
+
+    @Override
+    public List<WorkingHourDTO> addWorkingHours(String restaurantId, List<WorkingHourDTO> workingHours) {
+        return mapList((List<WorkingHours>) restaurantService.addWorkingHours(restaurantId, workingHours), WorkingHourDTO.class, modelMapper);
+    }
+
+    @Override
+    public WorkingHourDTO updateWorkingHour(String restaurantId, WorkingHourDTO workingHour) {
+        return dtoMapper(restaurantService.updateWorkingHours(restaurantId, workingHour), WorkingHourDTO.class, modelMapper);
+    }
+
+    @Override
+    public ResponseEntity<PagedModel<RestaurantDTO>> getRestaurants(Pageable pageable, PagedResourcesAssembler assembler, UriComponentsBuilder uriBuilder, HttpServletResponse response) {
+        eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<>(
+                RestaurantDTO.class, uriBuilder, response, pageable.getPageNumber(), restaurantService.getRestaurants(pageable).getTotalPages(), pageable.getPageSize()));
+        return new ResponseEntity<PagedModel<RestaurantDTO>>(assembler.toModel(restaurantService.getRestaurants(pageable).map(restaurant -> dtoMapper(restaurant, RestaurantDTO.class, modelMapper))), HttpStatus.OK);
+
+    }
+
+
 }

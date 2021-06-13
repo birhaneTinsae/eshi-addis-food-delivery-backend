@@ -1,15 +1,11 @@
 package com.eshi.addis.order;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
 public enum Status {
-    ACTIVE('A'), PENDING('P'),  DELETED('D');
+    ACTIVE('A'), PENDING('P'), DELETED('D');
     private final char status;
-
-    Status(char status) {
-        this.status = status;
-    }
-
-    public char getStatus() {
-        return status;
-    }
-
 }

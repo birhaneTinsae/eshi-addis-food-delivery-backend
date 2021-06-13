@@ -14,11 +14,10 @@ import java.io.Serializable;
 @Embeddable
 @Data
 @EqualsAndHashCode
-//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "order")
 public class OrderMenuPK implements Serializable {
 
     private static final long serialVersionUID = 476151177562655457L;
-//@JsonBackReference
+
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private Order order;

@@ -1,32 +1,20 @@
 package com.eshi.addis.order.orderMenu;
 
 import com.eshi.addis.utils.Common;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class OrderMenuService implements Common<OrderMenu,OrderMenu> {
-    private OrderMenuRepository orderMenuRepository;
-
-    public OrderMenuService(OrderMenuRepository orderMenuRepository) {
-        this.orderMenuRepository = orderMenuRepository;
-    }
-
-    public OrderMenu create(OrderMenu orderMenu) {
-        return orderMenuRepository.save(orderMenu);
-    }
-
-    public OrderMenu update(OrderMenu orderMenu) {
-        return orderMenuRepository.save(orderMenu);
-    }
-
-
+@RequiredArgsConstructor
+public class OrderMenuService implements Common<OrderMenu, OrderMenu> {
+    private final OrderMenuRepository orderMenuRepository;
 
     @Override
     public OrderMenu store(OrderMenu orderMenu) {
-        return null;
+        return orderMenuRepository.save(orderMenu);
     }
 
     @Override
@@ -41,7 +29,7 @@ public class OrderMenuService implements Common<OrderMenu,OrderMenu> {
 
     @Override
     public OrderMenu update(long id, OrderMenu orderMenu) {
-        return null;
+        return orderMenuRepository.save(orderMenu);
     }
 
     @Override

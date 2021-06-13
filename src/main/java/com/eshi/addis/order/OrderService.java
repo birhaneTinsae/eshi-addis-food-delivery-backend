@@ -1,37 +1,24 @@
 package com.eshi.addis.order;
 
-import com.eshi.addis.dto.OrderDto;
-import com.eshi.addis.exception.EntityNotFoundException;
-import com.eshi.addis.order.Order;
-import com.eshi.addis.order.OrderRepository;
+import com.eshi.addis.dto.OrderDTO;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
 
-import java.util.List;
+public interface OrderService {
 
-@Service
-public class OrderService {
+    Order createOrder(OrderDTO orderDTO);
 
-    private OrderRepository orderRepository;
+    Order updateOrder(String orderId, OrderDTO orderDTO);
 
-    public OrderService(OrderRepository orderRepository) {
-        this.orderRepository = orderRepository;
-    }
+    Order getOrder(String orderId);
 
-    public Order create(Order order) {
-        return orderRepository.save(order);
-    }
+    void acceptOrder(String orderId);
 
-    public void update(Order order) {
-        orderRepository.save(order);
-    }
+    void cancelOrder(String orderId);
 
-    public Order getOrder(long id) {
-        return orderRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(Order.class, "id", String.valueOf(id)));
-    }
+    void deleteOrder(String orderId);
 
-    public Page<Order> getOrderByStatus(long id, OrderStatus orderStatus) {
-        return orderRepository.findAllByIdAndOrderStatus(id, orderStatus);
-    }
+    Page<Order> getCustomerOrders(String customerId, Pageable pageable);
+
+    Page<Order> getRestaurantOrders(String restaurantId, Pageable pageable);
 }

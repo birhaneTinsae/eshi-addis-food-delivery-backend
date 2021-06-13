@@ -1,46 +1,27 @@
 package com.eshi.addis.customer;
 
-import com.eshi.addis.utils.Common;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 
-import javax.validation.Valid;
-import java.util.List;
-@Service
-public class CustomerService implements Common<Customer, Customer> {
-    private CustomerRepository customerRepository;
+public interface CustomerService {
 
-    public CustomerService(CustomerRepository customerRepository) {
-        this.customerRepository = customerRepository;
-    }
+    Customer createCustomer(Customer customer);
 
-    @Override
-    public Customer store(@Valid Customer customer) {
-        return null;
-    }
+    Customer getCustomer(String customerId);
 
-    @Override
-    public Iterable<Customer> store(List<@Valid Customer> t) {
-        return null;
-    }
+    void deleteCustomer(String customerId);
 
-    @Override
-    public Customer show(long id) {
-        return null;
-    }
+    Customer updateCustomer(String customerId, Customer customer);
 
-    @Override
-    public Customer update(long id, @Valid Customer customer) {
-        return null;
-    }
+    Page<Customer> getCustomers(Pageable pageable);
 
-    @Override
-    public boolean delete(long id) {
-        return false;
-    }
+    CustomerAddress addAddress(String customerId, CustomerAddress customerAddress);
 
-    @Override
-    public Iterable<Customer> getAll(Pageable pageable) {
-        return null;
-    }
+    void deleteAddress(long addressId);
+
+    CustomerAddress updateAddress(long addressId, CustomerAddress address);
+
+    CustomerAddress getCustomerAddress(long addressId);
+
+
 }

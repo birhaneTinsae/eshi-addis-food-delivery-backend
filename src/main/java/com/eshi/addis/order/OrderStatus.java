@@ -1,14 +1,12 @@
 package com.eshi.addis.order;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
 public enum OrderStatus {
-    SENT('S'), PREPARING('P'), CANCELED('C'), DELIVERED('D');
-    private char status;
+    SENT('S'),ACCEPTED('A'), PREPARING('P'), CANCELED('C'), DELIVERED('D');
+    private final char status;
 
-    OrderStatus(char status) {
-        this.status = status;
-    }
-
-    public char getStatus() {
-        return status;
-    }
 }

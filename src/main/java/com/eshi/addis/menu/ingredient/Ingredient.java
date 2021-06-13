@@ -2,6 +2,7 @@ package com.eshi.addis.menu.ingredient;
 
 import com.eshi.addis.menu.menuIngredient.MenuIngredient;
 import com.eshi.addis.restaurant.Restaurant;
+import com.eshi.addis.utils.Auditable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
@@ -12,7 +13,7 @@ import java.util.List;
 
 @Data
 @Entity(name = "ingredients")
-public class Ingredient {
+public class Ingredient extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -20,12 +21,10 @@ public class Ingredient {
     @NotBlank(message = "Ingredient name shouldn't be blank")
     private String name;
     private boolean available;
-   // @JsonIgnoreProperties(value = {"ingredient","category"})
     @JsonIgnore
     @OneToMany(mappedBy = "ingredient")
     private List<MenuIngredient> menuIngredients;
     @ManyToOne
     @JsonIgnore
-   // @JsonIgnoreProperties(value = {"ingredients","category"})
     private Restaurant restaurant;
 }

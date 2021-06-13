@@ -1,8 +1,8 @@
 package com.eshi.addis.customer;
 
-import com.eshi.addis.model.Address;
+import com.eshi.addis.favourite.Favourite;
+import com.eshi.addis.utils.Auditable;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -12,11 +12,13 @@ import java.util.List;
 
 @Entity(name = "customers")
 @Data
-public class Customer {
+public class Customer extends Auditable {
     @GeneratedValue
     @Id
     private String id;
     private int points;
-    @OneToMany
+    @OneToMany(mappedBy="customer")
     private List<CustomerAddress> addresses;
+    @OneToMany
+    private List<Favourite> favourites;
 }

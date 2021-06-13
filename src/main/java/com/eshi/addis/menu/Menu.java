@@ -1,12 +1,14 @@
 package com.eshi.addis.menu;
 
 import com.eshi.addis.menu.menuIngredient.MenuIngredient;
+import com.eshi.addis.menu.modifier.MenuModifier;
 import com.eshi.addis.menu.size.MenuSize;
 import com.eshi.addis.order.Status;
+import com.eshi.addis.order.StatusConverter;
 import com.eshi.addis.restaurant.category.Category;
-import com.fasterxml.jackson.annotation.*;
+import com.eshi.addis.utils.Auditable;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -15,12 +17,8 @@ import java.io.Serializable;
 import java.util.List;
 
 @Data
-@Entity
-@EqualsAndHashCode
-//@JsonIdentityInfo(
-//        generator = ObjectIdGenerators.PropertyGenerator.class,
-//        property = "id")
-public class Menu implements Serializable {
+@Entity(name = "menus")
+public class Menu extends Auditable implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -35,12 +33,13 @@ public class Menu implements Serializable {
     @ManyToOne
     @JsonIgnoreProperties(value = {"menus", "restaurant"})
     private Category category;
-  //  @JsonIgnore
     @OneToMany(mappedBy = "menu")
-    @JsonIgnoreProperties(value = {"menu","pk"})
+    @JsonIgnoreProperties(value = {"menu", "pk"})
     private List<MenuIngredient> ingredients;
     private boolean available = true;
+    @Convert(converter = StatusConverter.class)
     private Status status;
-
+    @OneToMany(mappedBy="menu")
+    private List<MenuModifier> menuModifiers;
 
 }

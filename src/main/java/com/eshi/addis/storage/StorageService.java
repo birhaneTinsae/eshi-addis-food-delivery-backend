@@ -21,4 +21,5 @@ public interface StorageService {
 
     void deleteAll();
 
+    void store(String filename, MultipartFile coverPic);
 }

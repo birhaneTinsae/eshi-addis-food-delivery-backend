@@ -3,14 +3,18 @@ package com.eshi.addis.order.orderMenu;
 import com.eshi.addis.menu.Menu;
 import com.eshi.addis.order.Order;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import javax.persistence.Transient;
 import java.io.Serializable;
 
 @Entity
-//@Data
-//@EqualsAndHashCode
+@Data
+@NoArgsConstructor
 public class OrderMenu implements Serializable {
 
     @EmbeddedId
@@ -20,9 +24,6 @@ public class OrderMenu implements Serializable {
     @Column(nullable = false)
     private Integer quantity;
 
-    public OrderMenu() {
-        super();
-    }
 
     public OrderMenu(Order order, Menu menu, Integer quantity) {
         pk = new OrderMenuPK();
@@ -31,30 +32,10 @@ public class OrderMenu implements Serializable {
         this.quantity = quantity;
     }
 
-    //  @Transient
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    public Menu getMenu() {
-        return this.pk.getMenu();
-    }
-
     @Transient
     public Double getTotalPrice() {
-        return getMenu().getPrice() * getQuantity();
+        return this.pk.getMenu().getPrice() * getQuantity();
     }
 
-    public OrderMenuPK getPk() {
-        return pk;
-    }
 
-    public void setPk(OrderMenuPK pk) {
-        this.pk = pk;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
 }

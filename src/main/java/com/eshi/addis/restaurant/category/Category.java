@@ -3,8 +3,10 @@ package com.eshi.addis.restaurant.category;
 import com.eshi.addis.menu.Menu;
 import com.eshi.addis.restaurant.Restaurant;
 import com.fasterxml.jackson.annotation.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;

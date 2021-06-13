@@ -6,10 +6,14 @@
 package com.eshi.addis.coupon;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import javax.persistence.*;
 
 import com.eshi.addis.restaurant.Restaurant;
+import com.eshi.addis.utils.Auditable;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  *
@@ -17,15 +21,19 @@ import lombok.Data;
  */
 @Data
 @Entity
-public class Coupon implements Serializable {
+@AllArgsConstructor
+@NoArgsConstructor
+public class Coupon extends Auditable implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private boolean percent;
+    private boolean percentage;
     private double amount;
-    private String coupon;
+    private String code;
     private boolean global;
     @ManyToOne
     private Restaurant restaurant;
+    private LocalDate expiryDate;
+    private boolean used;
 }

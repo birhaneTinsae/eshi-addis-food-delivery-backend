@@ -1,79 +1,86 @@
 package com.eshi.addis.menu;
 
-import com.eshi.addis.dto.IngredientDto;
-import com.eshi.addis.dto.MenuDto;
-import com.eshi.addis.menu.menuIngredient.MenuIngredient;
+import com.eshi.addis.dto.MenuDTO;
+import com.eshi.addis.menu.modifier.MenuModifier;
+import com.eshi.addis.menu.modifier.MenuModifierDTO;
 import com.eshi.addis.menu.size.MenuSizeService;
-import com.eshi.addis.restaurant.category.Category;
 import com.eshi.addis.restaurant.category.CategoryService;
-import com.eshi.addis.restaurant.RestaurantService;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import com.eshi.addis.utils.PaginatedResultsRetrievedEvent;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.validation.Valid;
-import java.util.ArrayList;
+import javax.servlet.http.HttpServletResponse;
+
 import java.util.List;
+
+import static com.eshi.addis.utils.Util.dtoMapper;
 
 @RestController
 @RequestMapping("menus")
-public class MenuController {
-    private MenuService menuService;
-    private RestaurantService restaurantService;
-    private CategoryService categoryService;
-    private MenuSizeService menuSizeService;
+@RequiredArgsConstructor
+public class MenuController implements MenuAPI {
+    private final MenuService menuService;
+    private final ModelMapper modelMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public MenuController(MenuService menuService,
-                          RestaurantService restaurantService,
-                          CategoryService categoryService,
-                          MenuSizeService menuSizeService) {
-        this.menuService = menuService;
-        this.restaurantService = restaurantService;
-        this.categoryService = categoryService;
-        this.menuSizeService = menuSizeService;
+    @Override
+    public MenuDTO createMenu(long categoryId, MenuDTO menu) {
+        return dtoMapper(menuService.createMenu(categoryId, dtoMapper(menu, Menu.class, modelMapper)), MenuDTO.class, modelMapper);
     }
 
-    @PostMapping("/service-provider/{id}/category/{categoryId}")
-    @Transactional
-    public Menu create(@PathVariable long id, @PathVariable long categoryId, @RequestBody @Valid MenuDto menuDto) {
-        Category category = categoryService.getCategory(categoryId);
-
-        Menu menu = menuDto.getMenu();
-        menu.setCategory(category);
-
-
-        if (menuDto.getIngredients() != null && !menuDto.getIngredients().isEmpty()) {
-            List<MenuIngredient> ingredients = new ArrayList<>();
-            for (IngredientDto ingredient : menuDto.getIngredients()) {
-                MenuIngredient menuIngredient = new MenuIngredient();
-                menuIngredient.setMenu(menu);
-                menuIngredient.setRequired(ingredient.isRequired());
-                ingredients.add(menuIngredient);
-            }
-
-            menu.setIngredients(menuService.createMenuIngredient(ingredients));
-        }
-        if (menuDto.getMenu().getSizes() != null && !menuDto.getMenu().getSizes().isEmpty()) {
-
-            menu.setSizes(menuSizeService.create(menuDto.getMenu().getSizes()));
-
-        }
-
-        return menuService.store(menu);
+    @Override
+    public MenuDTO getMenu(long menuId) {
+        return dtoMapper(menuService.getMenu(menuId), MenuDTO.class, modelMapper);
     }
 
-    @PutMapping("/{id}")
-    public Menu update(@PathVariable long id, @RequestBody Menu menu) {
-        return menuService.update(id, menu);
+    @Override
+    public MenuDTO updateMenu(long menuId, MenuDTO menu) {
+        return dtoMapper(menuService.updateMenu(menuId, dtoMapper(menu, Menu.class, modelMapper)), MenuDTO.class, modelMapper);
     }
 
-    @DeleteMapping("/{id}")
-    public boolean delete(@PathVariable long id) {
-        return menuService.delete(id);
+    @Override
+    public void deleteMenu(long menuId) {
+        menuService.deleteMenu(menuId);
     }
 
-    @GetMapping("/service-provider/{id}")
-    public Iterable<Category> getServiceProviderMenuCategories(@PathVariable long id) {
-        return restaurantService.getRestaurantMenuCategory(id);
+    @Override
+    public ResponseEntity<PagedModel<MenuDTO>> getMenuByCategory(Pageable pageable, PagedResourcesAssembler assembler, UriComponentsBuilder uriBuilder, HttpServletResponse response, long categoryId) {
+        eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<>(
+                MenuDTO.class, uriBuilder, response, pageable.getPageNumber(), menuService.getMenuByCategory(categoryId, pageable).getTotalPages(), pageable.getPageSize()));
+        return new ResponseEntity<PagedModel<MenuDTO>>(assembler.toModel(menuService.getMenuByCategory(categoryId, pageable).map(category -> dtoMapper(category, MenuDTO.class, modelMapper))), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<PagedModel<MenuDTO>> getMenuByRestaurant(Pageable pageable, PagedResourcesAssembler assembler, UriComponentsBuilder uriBuilder, HttpServletResponse response, String restaurantId) {
+        eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<>(
+                MenuDTO.class, uriBuilder, response, pageable.getPageNumber(), menuService.getMenuByRestaurant(restaurantId, pageable).getTotalPages(), pageable.getPageSize()));
+        return new ResponseEntity<PagedModel<MenuDTO>>(assembler.toModel(menuService.getMenuByRestaurant(restaurantId, pageable).map(category -> dtoMapper(category, MenuDTO.class, modelMapper))), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<PagedModel<MenuDTO>> getMenus(Pageable pageable, PagedResourcesAssembler assembler, UriComponentsBuilder uriBuilder, HttpServletResponse response) {
+        eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<>(
+                MenuDTO.class, uriBuilder, response, pageable.getPageNumber(), menuService.getMenus(pageable).getTotalPages(), pageable.getPageSize()));
+        return new ResponseEntity<PagedModel<MenuDTO>>(assembler.toModel(menuService.getMenus(pageable).map(category -> dtoMapper(category, MenuDTO.class, modelMapper))), HttpStatus.OK);
+    }
+
+    @Override
+    public Iterable<MenuModifier> addModifier(long menuId, List<MenuModifierDTO> modifier) {
+        return menuService.addModifier(menuId, modifier);
+    }
+
+    @Override
+    public void deleteModifier(long menuId, long modifierId) {
+        menuService.deleteModifier(menuId, modifierId);
     }
 
 

@@ -1,17 +1,18 @@
 package com.eshi.addis.manager;
 
 import com.eshi.addis.utils.Common;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
 import java.util.List;
 
-public class ManagerService implements Common<Manager,Manager> {
-    private ManagerRepository managerRepository;
+@RequiredArgsConstructor
+@Service
+public class ManagerService implements Common<Manager, Manager> {
+    private final ManagerRepository managerRepository;
 
-    public ManagerService(ManagerRepository managerRepository) {
-        this.managerRepository = managerRepository;
-    }
 
     @Override
     public Manager store(@Valid Manager manager) {

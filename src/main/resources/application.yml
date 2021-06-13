@@ -1,0 +1,45 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    username: root
+    password: Pas@12345
+    url: 'jdbc:mysql://${MYSQL_HOST:localhost}:3306/eshi_addis'
+  application:
+    name: 'ESHI-ADDIS'
+  jpa:
+    database-platform:
+    properties:
+      hibernate:
+        dialect : org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            clientId: github-client-id
+            clientSecret: github-client-secret
+          google:
+            client-id: google-client-id
+            client-secret: google-client-secret
+# ...
+
+apiKey: ${GOOGLE_API_KEY}
+
+logging:
+  level:
+    com:
+      eshi: debug
+jwt:
+  secret: ${SECRET_KEY}
+application:
+  allowedOrigin:
+    - 'http://196.189.90.121:71'
+    - 'http://localhost:4200'
+  shareValue: 1000
+  author: 'Amhara Bank S.c.'
+storage:
+  location: ""

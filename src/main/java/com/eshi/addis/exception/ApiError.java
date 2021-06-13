@@ -1,8 +1,10 @@
 package com.eshi.addis.exception;
 
+import com.eshi.addis.utils.CustomLocalDateTimeSerializer;
 import com.eshi.addis.utils.LowerCaseClassNameResolver;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import lombok.Data;
 import org.hibernate.validator.internal.engine.path.PathImpl;
@@ -24,6 +26,7 @@ class ApiError {
 
     private HttpStatus status;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
+    @JsonSerialize(using = CustomLocalDateTimeSerializer.class)
     private LocalDateTime timestamp;
     private String message;
     private String debugMessage;

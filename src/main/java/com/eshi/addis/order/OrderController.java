@@ -1,118 +1,75 @@
 package com.eshi.addis.order;
 
-import com.eshi.addis.menu.MenuService;
-import com.eshi.addis.order.orderMenu.OrderMenu;
-import com.eshi.addis.dto.OrderDto;
-import com.eshi.addis.dto.OrderMenuDto;
-import com.eshi.addis.order.orderMenu.OrderMenuService;
-import org.springframework.data.domain.Page;
-import org.springframework.http.HttpHeaders;
+import com.eshi.addis.dto.OrderDTO;
+import com.eshi.addis.dto.RestaurantDTO;
+import com.eshi.addis.utils.PaginatedResultsRetrievedEvent;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.persistence.EntityNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletResponse;
+
+import static com.eshi.addis.utils.Util.dtoMapper;
 
 @RestController
 @RequestMapping("orders")
-public class OrderController {
-    private MenuService menuService;
-    private OrderService orderService;
-    private OrderMenuService orderMenuService;
+@RequiredArgsConstructor
+public class OrderController implements OrderAPI {
+    private final OrderService orderService;
+    private final ModelMapper modelMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public OrderController(MenuService menuService, OrderService orderService, OrderMenuService orderMenuService) {
-        this.menuService = menuService;
-        this.orderService = orderService;
-        this.orderMenuService = orderMenuService;
+    @Override
+    public OrderDTO createOrder(OrderDTO orderDTO) {
+        return dtoMapper(orderService.createOrder(orderDTO), OrderDTO.class, modelMapper);
     }
 
-    @PostMapping
-    public ResponseEntity<Order> create(@RequestBody OrderDto orderDto) {
-        List<OrderMenuDto> orderMenuDtos = orderDto.getMenus();
-        validateProductsExistence(orderMenuDtos);
-        Order order = new Order();
-        order.setOrderStatus(OrderStatus.PREPARING);
-        order = this.orderService.create(order);
-
-        List<OrderMenu> orderMenus = new ArrayList<>();
-
-
-        for (OrderMenuDto dto : orderMenuDtos) {
-            orderMenus.add(orderMenuService.create(new OrderMenu(order, menuService.show(dto
-                    .getMenuItem().getMenu()
-                    .getId()), dto.getQuantity())));
-        }
-
-        order.setOrderMenus(orderMenus);
-        order.setSubTotal(order.getSubTotalOrderPrice());
-        order.setTax(order.getTax());
-        order.setTotalPrice(order.getTotalOrderPrice());
-        order.setSpecialNotes(orderDto.getSpecialNote() != null ? orderDto.getSpecialNote() : "");
-        order.setDeliveryTime(orderDto.getDeliveryAt());
-        order.setDeliveryLocation(orderDto.getDeliveryLocation());
-
-        this.orderService.update(order);
-
-        String uri = ServletUriComponentsBuilder
-                .fromCurrentServletMapping()
-                .path("/orders/{id}")
-                .buildAndExpand(order.getId())
-                .toString();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", uri);
-
-        return new ResponseEntity<>(order, headers, HttpStatus.CREATED);
+    @Override
+    public OrderDTO updateOrder(String orderId, OrderDTO orderDTO) {
+        return dtoMapper(orderService.updateOrder(orderId, orderDTO), OrderDTO.class, modelMapper);
     }
 
-
-    @GetMapping("/{id}")
-    public Order getOrder(@PathVariable long id){
-        return orderService.getOrder(id);
+    @Override
+    public OrderDTO getOrder(String orderId) {
+        return dtoMapper(orderService.getOrder(orderId), OrderDTO.class, modelMapper);
     }
 
-    @PostMapping("/schedule")
-    public OrderDto scheduleOrder(@RequestBody OrderDto orderDto){
-        return null;
-    }
-    @PutMapping("/cancel")
-    public OrderDto cancelOrder(@PathVariable long id){
-        return null;
-    }
-    @PutMapping("/reject")
-    public OrderDto rejectOrder(@PathVariable long id){
-        return null;
+    @Override
+    public void acceptOrder(String orderId) {
+        orderService.acceptOrder(orderId);
     }
 
-    @PutMapping("/accept")
-    public OrderDto acceptOrder(@PathVariable long id){
-        return null;
-    }
-    @GetMapping("/customers/{id}")
-    public List<OrderDto> getCustomerOrders(@PathVariable long id){
-        return null;
+    @Override
+    public void cancelOrder(String orderId) {
+        orderService.cancelOrder(orderId);
     }
 
-    @GetMapping("{id}/byStatus")
-    public Page<Order> getOrderByStatus(@PathVariable long id, OrderStatus orderStatus){
-        return orderService.getOrderByStatus(id,orderStatus);
+    @Override
+    public void deleteOrder(String orderId) {
+        orderService.deleteOrder(orderId);
     }
 
-    private void validateProductsExistence(List<OrderMenuDto> orderProducts) {
-        List<OrderMenuDto> list = orderProducts
-                .stream()
-                .filter(om -> Objects.isNull(menuService.show(om
-                        .getMenuItem().getMenu()
-                        .getId())))
-                .collect(Collectors.toList());
+    @Override
+    public ResponseEntity<PagedModel<RestaurantDTO>> getCustomerOrders(Pageable pageable, PagedResourcesAssembler assembler, UriComponentsBuilder uriBuilder, HttpServletResponse response, String customerId) {
+        eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<>(
+                RestaurantDTO.class, uriBuilder, response, pageable.getPageNumber(), orderService.getCustomerOrders(customerId, pageable).getTotalPages(), pageable.getPageSize()));
+        return new ResponseEntity<PagedModel<RestaurantDTO>>(assembler.toModel(orderService.getCustomerOrders(customerId, pageable).map(order -> dtoMapper(order, OrderDTO.class, modelMapper))), HttpStatus.OK);
 
-        if (!CollectionUtils.isEmpty(list)) {
-            throw new EntityNotFoundException("Menu not found");
-        }
+    }
+
+    @Override
+    public ResponseEntity<PagedModel<RestaurantDTO>> getRestaurantOrders(Pageable pageable, PagedResourcesAssembler assembler, UriComponentsBuilder uriBuilder, HttpServletResponse response, String restaurantId) {
+        eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<>(
+                RestaurantDTO.class, uriBuilder, response, pageable.getPageNumber(), orderService.getRestaurantOrders(restaurantId, pageable).getTotalPages(), pageable.getPageSize()));
+        return new ResponseEntity<PagedModel<RestaurantDTO>>(assembler.toModel(orderService.getRestaurantOrders(restaurantId, pageable).map(order -> dtoMapper(order, OrderDTO.class, modelMapper))), HttpStatus.OK);
+
     }
 }

@@ -1,8 +1,7 @@
 package com.eshi.addis.promotion;
 
-import com.eshi.addis.promotion.Promotion;
-import com.eshi.addis.promotion.PromotionService;
 import com.eshi.addis.utils.Common;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,8 +10,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/")
+@RequiredArgsConstructor
 public class PromotionController implements Common<Promotion,Promotion> {
-    private PromotionService promotionService;
+    private final PromotionServiceImp promotionServiceImp;
     @Override
     public Promotion store(Promotion promotion) {
         return null;

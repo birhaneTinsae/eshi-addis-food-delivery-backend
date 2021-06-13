@@ -1,66 +1,30 @@
 package com.eshi.addis.menu;
 
-import com.eshi.addis.exception.EntityNotFoundException;
-import com.eshi.addis.menu.menuIngredient.MenuIngredient;
-import com.eshi.addis.menu.menuIngredient.MenuIngredientRepository;
-import com.eshi.addis.order.Status;
-import com.eshi.addis.utils.Common;
-import org.springframework.beans.BeanUtils;
+import com.eshi.addis.menu.modifier.MenuModifier;
+import com.eshi.addis.menu.modifier.MenuModifierDTO;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 
-import javax.validation.Valid;
 import java.util.List;
 
-import static com.eshi.addis.utils.Util.getNullPropertyNames;
+public interface MenuService {
 
-@Service
-public class MenuService implements Common<Menu, Menu> {
-    private MenuRepository menuRepository;
-    private MenuIngredientRepository menuIngredientRepository;
+    Menu createMenu(long categoryId, Menu menu);
 
-    public MenuService(MenuRepository menuRepository, MenuIngredientRepository menuIngredientRepository) {
-        this.menuRepository = menuRepository;
-        this.menuIngredientRepository = menuIngredientRepository;
-    }
+    Menu getMenu(long menuId);
 
+    Menu updateMenu(long menuId, Menu menu);
 
-    public List<MenuIngredient> createMenuIngredient(List<MenuIngredient> menuIngredientList) {
-        return menuIngredientRepository.saveAll(menuIngredientList);
-    }
+    void deleteMenu(long menuId);
 
-    @Override
-    public Menu store(@Valid Menu menu) {
-        return menuRepository.save(menu);
-    }
+    Page<Menu> getMenuByCategory(long categoryId, Pageable pageable);
 
-    @Override
-    public Iterable<Menu> store(List<@Valid Menu> t) {
-        return menuRepository.saveAll(t);
-    }
+    Page<Menu> getMenuByRestaurant(String restaurantId, Pageable pageable);
 
-    @Override
-    public Menu show(long id) {
-        return menuRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(Menu.class, "id", String.valueOf(id)));
-    }
+    Page<Menu> getMenus(Pageable pageable);
 
-    @Override
-    public Menu update(long id, @Valid Menu menu) {
-        Menu m = show(id);
-        BeanUtils.copyProperties(menu, m, getNullPropertyNames(menu));
-        return menuRepository.save(m);
-    }
+    Iterable<MenuModifier> addModifier(long menuId, List<MenuModifierDTO> modifier);
 
-    public boolean delete(long id) {
-        Menu m = show(id);
-        m.setStatus(Status.DELETED);
-        update(id, m);
-        return true;
-    }
+    void deleteModifier(long menuId, long modifier);
 
-    @Override
-    public Iterable<Menu> getAll(Pageable pageable) {
-        return menuRepository.findAll(pageable);
-    }
 }
