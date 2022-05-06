@@ -5,7 +5,6 @@ import com.eshi.addis.utils.PaginatedResultsRetrievedEvent;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -19,24 +18,22 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
-import static com.eshi.addis.utils.Util.dtoMapper;
-
 @RestController
 @RequestMapping("customers")
 @RequiredArgsConstructor
 public class CustomerController implements CustomerAPI {
     private final CustomerService customerService;
-    private final ModelMapper modelMapper;
+    private final CustomerMapper customerMapper;
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public CustomerDTO createCustomer(Customer customer) {
-        return dtoMapper(customerService.createCustomer(customer), CustomerDTO.class, modelMapper);
+        return customerMapper.toCustomerDTO(customerService.createCustomer(customer));
     }
 
     @Override
     public CustomerDTO getCustomer(String customerId) {
-        return dtoMapper(customerService.getCustomer(customerId), CustomerDTO.class, modelMapper);
+        return customerMapper.toCustomerDTO(customerService.getCustomer(customerId));
     }
 
     @Override
@@ -46,7 +43,7 @@ public class CustomerController implements CustomerAPI {
 
     @Override
     public CustomerDTO updateCustomer(String customerId, Customer customer) {
-        return dtoMapper(customerService.updateCustomer(customerId, customer), CustomerDTO.class, modelMapper);
+        return customerMapper.toCustomerDTO(customerService.updateCustomer(customerId, customer));
     }
 
     @Override
@@ -59,13 +56,13 @@ public class CustomerController implements CustomerAPI {
             , final HttpServletResponse response) {
         eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<>(
                 CustomerDTO.class, uriBuilder, response, pageable.getPageNumber(), customerService.getCustomers(pageable).getTotalPages(), pageable.getPageSize()));
-        return new ResponseEntity<PagedModel<CustomerDTO>>(assembler.toModel(customerService.getCustomers(pageable).map(customer -> dtoMapper(customer, CustomerDTO.class, modelMapper))), HttpStatus.OK);
+        return new ResponseEntity<PagedModel<CustomerDTO>>(assembler.toModel(customerService.getCustomers(pageable).map(customerMapper::toCustomerDTO)), HttpStatus.OK);
 
     }
 
     @Override
     public CustomerAddressDTO addAddress(String customerId, CustomerAddress customerAddress) {
-        return dtoMapper(customerService.addAddress(customerId, customerAddress), CustomerAddressDTO.class, modelMapper);
+        return customerMapper.toCustomerAddressDTO(customerService.addAddress(customerId, customerAddress));
     }
 
     @Override
@@ -75,12 +72,12 @@ public class CustomerController implements CustomerAPI {
 
     @Override
     public CustomerAddressDTO updateAddress(long addressId, CustomerAddress address) {
-        return dtoMapper(customerService.updateAddress(addressId, address), CustomerAddressDTO.class, modelMapper);
+        return customerMapper.toCustomerAddressDTO(customerService.updateAddress(addressId, address));
 
     }
 
     @Override
     public CustomerAddressDTO getCustomerAddress(long addressId) {
-        return dtoMapper(customerService.getCustomerAddress(addressId), CustomerAddressDTO.class, modelMapper);
+        return customerMapper.toCustomerAddressDTO(customerService.getCustomerAddress(addressId));
     }
 }

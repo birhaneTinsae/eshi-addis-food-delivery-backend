@@ -1,4 +1,4 @@
-package com.eshi.addis.rate;
+package com.eshi.addis.review.rate;
 
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;

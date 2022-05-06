@@ -3,17 +3,21 @@ package com.eshi.addis.order.orderMenu;
 import com.eshi.addis.menu.Menu;
 import com.eshi.addis.order.Order;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.Hibernate;
 
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 import java.io.Serializable;
+import java.util.Objects;
 
 @Entity
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @NoArgsConstructor
 public class OrderMenu implements Serializable {
 
@@ -37,5 +41,16 @@ public class OrderMenu implements Serializable {
         return this.pk.getMenu().getPrice() * getQuantity();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        OrderMenu orderMenu = (OrderMenu) o;
+        return pk != null && Objects.equals(pk, orderMenu.pk);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(pk);
+    }
 }

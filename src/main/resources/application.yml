@@ -1,5 +1,7 @@
 server:
   port: 8080
+  servlet:
+    context-path: /api/v1
 
 spring:
   datasource:
@@ -12,7 +14,7 @@ spring:
     database-platform:
     properties:
       hibernate:
-        dialect : org.hibernate.dialect.MySQL8Dialect
+        dialect: org.hibernate.dialect.MySQL8Dialect
     hibernate:
       ddl-auto: update
   security:
@@ -29,17 +31,26 @@ spring:
 
 apiKey: ${GOOGLE_API_KEY}
 
-logging:
-  level:
-    com:
-      eshi: debug
+#logging:
+#  level:
+#    com:
+#      eshi: debug
 jwt:
   secret: ${SECRET_KEY}
 application:
   allowedOrigin:
     - 'http://196.189.90.121:71'
     - 'http://localhost:4200'
-  shareValue: 1000
-  author: 'Amhara Bank S.c.'
 storage:
   location: ""
+logging:
+  level:
+    org:
+      springframework:
+        ws: TRACE
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE

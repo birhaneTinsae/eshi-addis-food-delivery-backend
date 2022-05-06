@@ -2,7 +2,7 @@ package com.eshi.addis.coupon;
 
 import com.eshi.addis.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.eshi.addis.utils.Util.generateCouponCode;
+import static com.eshi.addis.utils.Util.getNullPropertyNames;
 
 @RequiredArgsConstructor
 @Service
@@ -31,11 +32,13 @@ public class CouponServiceImp implements CouponService {
     @Override
     public Coupon updateCoupon(long couponId, Coupon coupon) {
         var c = getCoupon(couponId);
-        c.setPercentage(coupon.isPercentage());
-        c.setAmount(coupon.getAmount());
-        c.setGlobal(coupon.isGlobal());
-        c.setExpiryDate(coupon.getExpiryDate());
-        c.setUsed(coupon.isUsed());
+        BeanUtils.copyProperties(coupon, c, getNullPropertyNames(coupon));
+
+//        c.setPercentage(coupon.isPercentage());
+//        c.setAmount(coupon.getAmount());
+//        c.setGlobal(coupon.isGlobal());
+//        c.setExpiryDate(coupon.getExpiryDate());
+//        c.setUsed(coupon.isUsed());
         return couponRepository.save(c);
     }
 
@@ -66,7 +69,6 @@ public class CouponServiceImp implements CouponService {
     }
 
 
-    @NotNull
     private List<Coupon> getCoupons(CouponDTO couponDTO) {
         return IntStream.rangeClosed(0, couponDTO.getQty())
                 .boxed()

@@ -31,11 +31,8 @@ public class Order extends Auditable {
                     @Parameter(name = StringPrefixedSequenceGenerator.VALUE_PREFIX_PARAMETER, value = "EAO_"),
                     @Parameter(name = StringPrefixedSequenceGenerator.NUMBER_FORMAT_PARAMETER, value = "%04d")})
     private String id;
-    //    @JsonFormat(pattern = "dd/MM/yyyy")
-//    private LocalDate dateCreated;
     @Convert(converter = OrderStatusConverter.class)
     private OrderStatus orderStatus;
-
     @OneToMany(mappedBy = "pk.order")
     @Valid
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -49,15 +46,12 @@ public class Order extends Auditable {
     @Embedded
     private Address deliveryAddress;
     private DeliveryType deliveryType;
-    //    @Embedded
-    //private OrderDistance orderDistance;
+        @Embedded
+    private OrderDistance orderDistance;
     @ManyToOne
     private Restaurant restaurant;
-
     @ManyToOne
     private Customer customer;
-
-
     @Transient
     public Double getSubTotalOrderPrice() {
         var sum = 0D;
@@ -65,7 +59,6 @@ public class Order extends Auditable {
         for (OrderMenu om : orderProducts) {
             sum += om.getTotalPrice();
         }
-
         return sum;
     }
 

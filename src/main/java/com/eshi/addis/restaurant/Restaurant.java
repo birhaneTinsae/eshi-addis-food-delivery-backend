@@ -1,17 +1,22 @@
 package com.eshi.addis.restaurant;
 
-import com.eshi.addis.review.Review;
 import com.eshi.addis.menu.ingredient.Ingredient;
-import com.eshi.addis.model.*;
+import com.eshi.addis.model.Address;
+import com.eshi.addis.model.Contact;
+import com.eshi.addis.model.Pricing;
+import com.eshi.addis.model.PricingConverter;
 import com.eshi.addis.order.Order;
 import com.eshi.addis.order.Status;
 import com.eshi.addis.order.StatusConverter;
 import com.eshi.addis.restaurant.branch.Branch;
 import com.eshi.addis.restaurant.category.Category;
+import com.eshi.addis.review.Review;
+import com.eshi.addis.restaurant.workingHour.WorkingHours;
 import com.eshi.addis.utils.Auditable;
 import com.eshi.addis.utils.StringPrefixedSequenceGenerator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Data;
+import lombok.*;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -19,10 +24,14 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 import static java.util.Objects.isNull;
 
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @Entity(name = "restaurants")
 public class Restaurant extends Auditable implements Serializable {
     @Id
@@ -46,6 +55,7 @@ public class Restaurant extends Auditable implements Serializable {
     private Status status;
     @JsonIgnoreProperties(value = {"restaurant"/*,"hibernateLazyInitializer"*/})
     @OneToMany(mappedBy = "restaurant")
+    @ToString.Exclude
     private List<Category> menuCategories;
     @Embedded
     private Address address;
@@ -54,13 +64,16 @@ public class Restaurant extends Auditable implements Serializable {
 
     @JsonIgnoreProperties(value = {"restaurant"})
     @OneToMany(mappedBy = "restaurant")
+    @ToString.Exclude
     private List<Branch> branches;
     @JsonIgnoreProperties(value = {"restaurant"})
     @OneToMany(mappedBy = "restaurant")
+    @ToString.Exclude
     private List<Review> reviews;
 
     @JsonIgnoreProperties(value = {"restaurant"})
     @OneToMany(mappedBy = "restaurant")
+    @ToString.Exclude
     private List<Ingredient> ingredients;
 
     @Transient
@@ -68,9 +81,11 @@ public class Restaurant extends Auditable implements Serializable {
     @Transient
     private int totalRating;
 
-    @OneToMany(mappedBy = "restaurant")
+    @OneToMany(mappedBy = "restaurant",cascade=CascadeType.ALL)
+    @ToString.Exclude
     private List<WorkingHours> workingHours;
     @OneToMany(mappedBy = "restaurant")
+    @ToString.Exclude
     private List<Order> orders;
     private boolean verified;
 
@@ -90,5 +105,19 @@ public class Restaurant extends Auditable implements Serializable {
             return getReviews().size();
         }
         return 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Restaurant that = (Restaurant) o;
+
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return 1642335971;
     }
 }

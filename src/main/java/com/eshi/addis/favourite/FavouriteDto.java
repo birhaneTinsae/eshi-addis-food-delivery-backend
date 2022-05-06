@@ -7,7 +7,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class FavouriteDTO implements Serializable {
+public class FavouriteDto implements Serializable {
     private Customer customer;
     private Menu menu;
 }

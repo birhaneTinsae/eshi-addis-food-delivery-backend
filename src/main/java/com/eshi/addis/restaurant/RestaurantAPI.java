@@ -1,6 +1,6 @@
 package com.eshi.addis.restaurant;
 
-import com.eshi.addis.dto.RestaurantDTO;
+import com.eshi.addis.restaurant.workingHour.WorkingHourDto;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.domain.Pageable;
@@ -21,15 +21,15 @@ public interface RestaurantAPI {
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    RestaurantDTO createRestaurant(@Valid() @RequestBody() Restaurant restaurant);
+    RestaurantDto createRestaurant(@Valid() @RequestBody() Restaurant restaurant);
 
     @GetMapping("/{restaurantId}")
     @ResponseStatus(HttpStatus.OK)
-    RestaurantDTO getRestaurant(@PathVariable String restaurantId);
+    RestaurantDto getRestaurant(@PathVariable String restaurantId);
 
     @PutMapping("/{restaurantId}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    RestaurantDTO updateRestaurant(@PathVariable String restaurantId, @Valid() @RequestBody() Restaurant restaurant);
+    RestaurantDto updateRestaurant(@PathVariable String restaurantId, @Valid() @RequestBody() Restaurant restaurant);
 
     @DeleteMapping("/{restaurantId}")
     @ResponseStatus(HttpStatus.ACCEPTED)
@@ -41,7 +41,7 @@ public interface RestaurantAPI {
 
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    ResponseEntity<PagedModel<RestaurantDTO>> getRestaurants(@Parameter(description = "pagination object",
+    ResponseEntity<PagedModel<RestaurantDto>> getRestaurants(@Parameter(description = "pagination object",
             schema = @Schema(implementation = Pageable.class))
                                                              @Valid Pageable pageable
             , PagedResourcesAssembler assembler
@@ -52,7 +52,7 @@ public interface RestaurantAPI {
 
     @GetMapping("/nearby")
     @ResponseStatus(HttpStatus.OK)
-    ResponseEntity<PagedModel<RestaurantDTO>> getNearbyRestaurants(@Parameter(description = "pagination object",
+    ResponseEntity<PagedModel<RestaurantDto>> getNearbyRestaurants(@Parameter(description = "pagination object",
             schema = @Schema(implementation = Pageable.class))
                                                                    @Valid Pageable pageable
             , PagedResourcesAssembler assembler
@@ -63,7 +63,7 @@ public interface RestaurantAPI {
 
     @GetMapping("/recommended/{customerId}")
     @ResponseStatus(HttpStatus.OK)
-    ResponseEntity<PagedModel<RestaurantDTO>> getRecommendedRestaurants(@Parameter(description = "pagination object",
+    ResponseEntity<PagedModel<RestaurantDto>> getRecommendedRestaurants(@Parameter(description = "pagination object",
             schema = @Schema(implementation = Pageable.class))
                                                                         @Valid Pageable pageable
             , PagedResourcesAssembler assembler
@@ -74,7 +74,7 @@ public interface RestaurantAPI {
 
     @GetMapping("/new-restaurants")
     @ResponseStatus(HttpStatus.OK)
-    ResponseEntity<PagedModel<RestaurantDTO>> getNewRestaurants(@Parameter(description = "pagination object",
+    ResponseEntity<PagedModel<RestaurantDto>> getNewRestaurants(@Parameter(description = "pagination object",
             schema = @Schema(implementation = Pageable.class))
                                                                 @Valid Pageable pageable
             , PagedResourcesAssembler assembler
@@ -85,7 +85,7 @@ public interface RestaurantAPI {
 
     @GetMapping("/customer-favourites/{customerId}")
     @ResponseStatus(HttpStatus.OK)
-    ResponseEntity<PagedModel<RestaurantDTO>> getCustomerFavourites(@Parameter(description = "pagination object",
+    ResponseEntity<PagedModel<RestaurantDto>> getCustomerFavourites(@Parameter(description = "pagination object",
             schema = @Schema(implementation = Pageable.class))
                                                                     @Valid Pageable pageable
             , PagedResourcesAssembler assembler
@@ -94,8 +94,10 @@ public interface RestaurantAPI {
             , final HttpServletResponse response
             , @PathVariable("customerId") String customerId);
 
+    @PostMapping("/{restaurantId}/working-hours")
+    @ResponseStatus(HttpStatus.CREATED)
+    List<WorkingHourDto> addWorkingHours(@PathVariable String restaurantId, @RequestBody @Valid List<WorkingHourDto> workingHours);
 
-    List<WorkingHourDTO> addWorkingHours(String restaurantId, List<WorkingHourDTO> workingHours);
-
-    WorkingHourDTO updateWorkingHour(String restaurantId, WorkingHourDTO workingHour);
+    @PutMapping("/{restaurantId}/working-hours")
+    WorkingHourDto updateWorkingHour(@PathVariable String restaurantId, @RequestBody @Valid WorkingHourDto workingHour);
 }

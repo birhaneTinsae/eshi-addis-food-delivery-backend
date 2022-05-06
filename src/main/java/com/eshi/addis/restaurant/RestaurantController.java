@@ -1,10 +1,11 @@
 package com.eshi.addis.restaurant;
 
-import com.eshi.addis.dto.RestaurantDTO;
-import com.eshi.addis.favourite.FavouriteDTO;
+import com.eshi.addis.elastic.ElasticRestaurantService;
+import com.eshi.addis.restaurant.workingHour.WorkingHourDto;
+import com.eshi.addis.restaurant.workingHour.WorkingHourMapper;
+import com.eshi.addis.restaurant.workingHour.WorkingHours;
 import com.eshi.addis.utils.PaginatedResultsRetrievedEvent;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.geo.Point;
@@ -18,11 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletResponse;
-
 import java.util.List;
-
-import static com.eshi.addis.utils.Util.dtoMapper;
-import static com.eshi.addis.utils.Util.mapList;
 
 @RestController
 @RequestMapping("/restaurants")
@@ -30,22 +27,24 @@ import static com.eshi.addis.utils.Util.mapList;
 public class RestaurantController implements RestaurantAPI {
 
     private final RestaurantService restaurantService;
-    private final ModelMapper modelMapper;
+    private final RestaurantMapper restaurantMapper;
     private final ApplicationEventPublisher eventPublisher;
+    private final ElasticRestaurantService service;
+    private final WorkingHourMapper workingHourMapper;
 
     @Override
-    public RestaurantDTO createRestaurant(Restaurant restaurant) {
-        return dtoMapper(restaurantService.createRestaurant(restaurant), RestaurantDTO.class, modelMapper);
+    public RestaurantDto createRestaurant(Restaurant restaurant) {
+        return restaurantMapper.toRestaurantDTO(restaurantService.createRestaurant(restaurant));
     }
 
     @Override
-    public RestaurantDTO getRestaurant(String restaurantId) {
-        return dtoMapper(restaurantService.getRestaurant(restaurantId), RestaurantDTO.class, modelMapper);
+    public RestaurantDto getRestaurant(String restaurantId) {
+        return restaurantMapper.toRestaurantDTO(restaurantService.getRestaurant(restaurantId));
     }
 
     @Override
-    public RestaurantDTO updateRestaurant(String restaurantId, Restaurant restaurant) {
-        return dtoMapper(restaurantService.updateRestaurant(restaurantId, restaurant), RestaurantDTO.class, modelMapper);
+    public RestaurantDto updateRestaurant(String restaurantId, Restaurant restaurant) {
+        return restaurantMapper.toRestaurantDTO(restaurantService.updateRestaurant(restaurantId, restaurant));
     }
 
     @Override
@@ -60,54 +59,56 @@ public class RestaurantController implements RestaurantAPI {
 
 
     @Override
-    public ResponseEntity<PagedModel<RestaurantDTO>> getNearbyRestaurants(Pageable pageable, PagedResourcesAssembler assembler, UriComponentsBuilder uriBuilder, HttpServletResponse response, Point customerLocation) {
+    public ResponseEntity<PagedModel<RestaurantDto>> getNearbyRestaurants(Pageable pageable, PagedResourcesAssembler assembler, UriComponentsBuilder uriBuilder, HttpServletResponse response, Point customerLocation) {
         eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<>(
-                RestaurantDTO.class, uriBuilder, response, pageable.getPageNumber(), restaurantService.getNearbyRestaurants(customerLocation, pageable).getTotalPages(), pageable.getPageSize()));
-        return new ResponseEntity<PagedModel<RestaurantDTO>>(assembler.toModel(restaurantService.getNearbyRestaurants(customerLocation, pageable).map(favourite -> dtoMapper(favourite, FavouriteDTO.class, modelMapper))), HttpStatus.OK);
+                RestaurantDto.class, uriBuilder, response, pageable.getPageNumber(), restaurantService.getNearbyRestaurants(customerLocation, pageable).getTotalPages(), pageable.getPageSize()));
+        return new ResponseEntity<PagedModel<RestaurantDto>>(assembler.toModel(restaurantService.getNearbyRestaurants(customerLocation, pageable).map(restaurantMapper::toRestaurantDTO)), HttpStatus.OK);
 
     }
 
     @Override
-    public ResponseEntity<PagedModel<RestaurantDTO>> getRecommendedRestaurants(Pageable pageable, PagedResourcesAssembler assembler, UriComponentsBuilder uriBuilder, HttpServletResponse response, String customerId) {
+    public ResponseEntity<PagedModel<RestaurantDto>> getRecommendedRestaurants(Pageable pageable, PagedResourcesAssembler assembler, UriComponentsBuilder uriBuilder, HttpServletResponse response, String customerId) {
         eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<>(
-                RestaurantDTO.class, uriBuilder, response, pageable.getPageNumber(), restaurantService.getRecommendedRestaurants(customerId, pageable).getTotalPages(), pageable.getPageSize()));
-        return new ResponseEntity<PagedModel<RestaurantDTO>>(assembler.toModel(restaurantService.getRecommendedRestaurants(customerId, pageable).map(favourite -> dtoMapper(favourite, FavouriteDTO.class, modelMapper))), HttpStatus.OK);
+                RestaurantDto.class, uriBuilder, response, pageable.getPageNumber(), restaurantService.getRecommendedRestaurants(customerId, pageable).getTotalPages(), pageable.getPageSize()));
+        return new ResponseEntity<PagedModel<RestaurantDto>>(assembler.toModel(restaurantService.getRecommendedRestaurants(customerId, pageable).map(restaurantMapper::toRestaurantDTO)), HttpStatus.OK);
 
     }
 
     @Override
-    public ResponseEntity<PagedModel<RestaurantDTO>> getNewRestaurants(Pageable pageable, PagedResourcesAssembler assembler, UriComponentsBuilder uriBuilder, HttpServletResponse response) {
+    public ResponseEntity<PagedModel<RestaurantDto>> getNewRestaurants(Pageable pageable, PagedResourcesAssembler assembler, UriComponentsBuilder uriBuilder, HttpServletResponse response) {
         eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<>(
-                RestaurantDTO.class, uriBuilder, response, pageable.getPageNumber(), restaurantService.getNewRestaurants(pageable).getTotalPages(), pageable.getPageSize()));
-        return new ResponseEntity<PagedModel<RestaurantDTO>>(assembler.toModel(restaurantService.getNewRestaurants(pageable).map(favourite -> dtoMapper(favourite, FavouriteDTO.class, modelMapper))), HttpStatus.OK);
+                RestaurantDto.class, uriBuilder, response, pageable.getPageNumber(), restaurantService.getNewRestaurants(pageable).getTotalPages(), pageable.getPageSize()));
+        return new ResponseEntity<PagedModel<RestaurantDto>>(assembler.toModel(restaurantService.getNewRestaurants(pageable).map(restaurantMapper::toRestaurantDTO)), HttpStatus.OK);
 
     }
 
     @Override
-    public ResponseEntity<PagedModel<RestaurantDTO>> getCustomerFavourites(Pageable pageable, PagedResourcesAssembler assembler, UriComponentsBuilder uriBuilder, HttpServletResponse response, String customerId) {
+    public ResponseEntity<PagedModel<RestaurantDto>> getCustomerFavourites(Pageable pageable, PagedResourcesAssembler assembler, UriComponentsBuilder uriBuilder, HttpServletResponse response, String customerId) {
         eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<>(
-                RestaurantDTO.class, uriBuilder, response, pageable.getPageNumber(), restaurantService.getCustomerFavourites(customerId, pageable).getTotalPages(), pageable.getPageSize()));
-        return new ResponseEntity<PagedModel<RestaurantDTO>>(assembler.toModel(restaurantService.getCustomerFavourites(customerId, pageable).map(favourite -> dtoMapper(favourite, FavouriteDTO.class, modelMapper))), HttpStatus.OK);
+                RestaurantDto.class, uriBuilder, response, pageable.getPageNumber(), restaurantService.getCustomerFavourites(customerId, pageable).getTotalPages(), pageable.getPageSize()));
+        return new ResponseEntity<PagedModel<RestaurantDto>>(assembler.toModel(restaurantService.getCustomerFavourites(customerId, pageable).map(restaurantMapper::toRestaurantDTO)), HttpStatus.OK);
 
     }
 
     @Override
-    public List<WorkingHourDTO> addWorkingHours(String restaurantId, List<WorkingHourDTO> workingHours) {
-        return mapList((List<WorkingHours>) restaurantService.addWorkingHours(restaurantId, workingHours), WorkingHourDTO.class, modelMapper);
+    public List<WorkingHourDto> addWorkingHours(String restaurantId, List<WorkingHourDto> workingHours) {
+        return workingHourMapper.toWorkingHours((List<WorkingHours>) restaurantService.addWorkingHours(restaurantId, workingHours));
     }
 
     @Override
-    public WorkingHourDTO updateWorkingHour(String restaurantId, WorkingHourDTO workingHour) {
-        return dtoMapper(restaurantService.updateWorkingHours(restaurantId, workingHour), WorkingHourDTO.class, modelMapper);
+    public WorkingHourDto updateWorkingHour(String restaurantId, WorkingHourDto workingHour) {
+        return workingHourMapper.toWorkingHour(restaurantService.updateWorkingHours(restaurantId, workingHour));
     }
 
     @Override
-    public ResponseEntity<PagedModel<RestaurantDTO>> getRestaurants(Pageable pageable, PagedResourcesAssembler assembler, UriComponentsBuilder uriBuilder, HttpServletResponse response) {
+    public ResponseEntity<PagedModel<RestaurantDto>> getRestaurants(Pageable pageable, PagedResourcesAssembler assembler, UriComponentsBuilder uriBuilder, HttpServletResponse response) {
         eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<>(
-                RestaurantDTO.class, uriBuilder, response, pageable.getPageNumber(), restaurantService.getRestaurants(pageable).getTotalPages(), pageable.getPageSize()));
-        return new ResponseEntity<PagedModel<RestaurantDTO>>(assembler.toModel(restaurantService.getRestaurants(pageable).map(restaurant -> dtoMapper(restaurant, RestaurantDTO.class, modelMapper))), HttpStatus.OK);
+                RestaurantDto.class, uriBuilder, response, pageable.getPageNumber(), restaurantService.getRestaurants(pageable).getTotalPages(), pageable.getPageSize()));
+        return new ResponseEntity<PagedModel<RestaurantDto>>(assembler.toModel(restaurantService.getRestaurants(pageable).map(restaurantMapper::toRestaurantDTO)), HttpStatus.OK);
 
     }
+
+
 
 
 }

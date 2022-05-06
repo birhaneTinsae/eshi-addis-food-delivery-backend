@@ -1,5 +1,7 @@
 package com.eshi.addis.restaurant;
 
+import com.eshi.addis.restaurant.workingHour.WorkingHourDto;
+import com.eshi.addis.restaurant.workingHour.WorkingHours;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.geo.Point;
@@ -29,6 +31,7 @@ public interface RestaurantService {
 
     Page<Restaurant> getCustomerFavourites(String customerId, Pageable pageable);
 
-    Iterable<WorkingHours> addWorkingHours(String restaurantId, List<WorkingHourDTO> workingHour);
-    WorkingHours updateWorkingHours(String restaurantId,WorkingHourDTO workingHour);
+    Iterable<WorkingHours> addWorkingHours(String restaurantId, List<WorkingHourDto> workingHour);
+
+    WorkingHours updateWorkingHours(String restaurantId, WorkingHourDto workingHour);
 }

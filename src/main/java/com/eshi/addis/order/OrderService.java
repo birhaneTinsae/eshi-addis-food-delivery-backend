@@ -1,12 +1,15 @@
 package com.eshi.addis.order;
 
 import com.eshi.addis.dto.OrderDTO;
+import com.google.maps.errors.ApiException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.io.IOException;
+
 public interface OrderService {
 
-    Order createOrder(OrderDTO orderDTO);
+    Order createOrder(OrderDTO orderDTO) throws IOException, InterruptedException, ApiException;
 
     Order updateOrder(String orderId, OrderDTO orderDTO);
 

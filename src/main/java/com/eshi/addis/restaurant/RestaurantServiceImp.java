@@ -1,9 +1,12 @@
 package com.eshi.addis.restaurant;
 
 import com.eshi.addis.exception.EntityNotFoundException;
-import com.eshi.addis.favourite.Favourite;
 import com.eshi.addis.favourite.FavouriteService;
 import com.eshi.addis.order.Status;
+import com.eshi.addis.restaurant.workingHour.WorkingHourDto;
+import com.eshi.addis.restaurant.workingHour.WorkingHourMapper;
+import com.eshi.addis.restaurant.workingHour.WorkingHourRepository;
+import com.eshi.addis.restaurant.workingHour.WorkingHours;
 import com.eshi.addis.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -26,6 +29,7 @@ public class RestaurantServiceImp implements RestaurantService {
     private final StorageService storageService;
     private final FavouriteService favoriteService;
     private final WorkingHourRepository workingHourRepository;
+    private final WorkingHourMapper workingHourMapper;
 
     @Override
     public Restaurant createRestaurant(Restaurant restaurant) {
@@ -87,12 +91,14 @@ public class RestaurantServiceImp implements RestaurantService {
     }
 
     @Override
-    public Iterable<WorkingHours> addWorkingHours(String restaurantId, List<WorkingHourDTO> workingHours) {
+    public Iterable<WorkingHours> addWorkingHours(String restaurantId, List<WorkingHourDto> workingHours) {
         var restaurant = getRestaurant(restaurantId);
         List<WorkingHours> hours = workingHours.stream().map(workingHour -> {
             var wh = new WorkingHours();
+            var workingHourKey = new WorkingHourKey(restaurantId, workingHour.getWeekDay().getId());
+            wh.setId(workingHourKey);
             wh.setRestaurant(restaurant);
-            wh.setWeekDay(workingHour.getWeekDay());
+            wh.setWeekDay(workingHourMapper.toWeekDay(workingHour.getWeekDay()));
             wh.setCloseAt(workingHour.getCloseAt());
             wh.setOpenAt(workingHour.getOpenAt());
             return wh;
@@ -102,7 +108,7 @@ public class RestaurantServiceImp implements RestaurantService {
     }
 
     @Override
-    public WorkingHours updateWorkingHours(String restaurantId, WorkingHourDTO workingHour) {
+    public WorkingHours updateWorkingHours(String restaurantId, WorkingHourDto workingHour) {
         var workingHourKey = new WorkingHourKey(restaurantId, workingHour.getWeekDay().getId());
         var workingHours = getWorkingHours(workingHourKey);
         workingHours.setOpenAt(workingHour.getOpenAt());
@@ -112,7 +118,8 @@ public class RestaurantServiceImp implements RestaurantService {
     }
 
     private WorkingHours getWorkingHours(WorkingHourKey workingHourKey) {
-        return workingHourRepository.findById(workingHourKey).orElseThrow(() -> new EntityNotFoundException(WorkingHours.class, "Id", workingHourKey.toString()));
+        return workingHourRepository.findById(workingHourKey)
+                .orElseThrow(() -> new EntityNotFoundException(WorkingHours.class, "Id", workingHourKey.toString()));
     }
 
 }

@@ -1,10 +1,10 @@
 package com.eshi.addis.order;
 
 import com.eshi.addis.dto.OrderDTO;
-import com.eshi.addis.dto.RestaurantDTO;
+import com.eshi.addis.restaurant.RestaurantDto;
+import com.google.maps.errors.ApiException;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedModel;
@@ -15,11 +15,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 
 public interface OrderAPI {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping()
-    OrderDTO createOrder(@RequestBody() OrderDTO orderDTO);
+    OrderDTO createOrder(@RequestBody() OrderDTO orderDTO) throws IOException, InterruptedException, ApiException;
 
     @PutMapping("/{orderId}")
     OrderDTO updateOrder(@PathVariable("orderId") String orderId, @RequestBody() OrderDTO orderDTO);
@@ -42,7 +43,7 @@ public interface OrderAPI {
 
     @GetMapping("/customer-orders/{customerId}")
     @ResponseStatus(HttpStatus.OK)
-    ResponseEntity<PagedModel<RestaurantDTO>> getCustomerOrders(@Parameter(description = "pagination object",
+    ResponseEntity<PagedModel<RestaurantDto>> getCustomerOrders(@Parameter(description = "pagination object",
             schema = @Schema(implementation = Pageable.class))
                                                              @Valid Pageable pageable
             , PagedResourcesAssembler assembler
@@ -53,7 +54,7 @@ public interface OrderAPI {
 
     @GetMapping("/restaurant-orders/{restaurantId}")
     @ResponseStatus(HttpStatus.OK)
-    ResponseEntity<PagedModel<RestaurantDTO>> getRestaurantOrders(@Parameter(description = "pagination object",
+    ResponseEntity<PagedModel<RestaurantDto>> getRestaurantOrders(@Parameter(description = "pagination object",
             schema = @Schema(implementation = Pageable.class))
                                                              @Valid Pageable pageable
             , PagedResourcesAssembler assembler

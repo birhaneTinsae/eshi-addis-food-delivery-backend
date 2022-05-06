@@ -1,6 +1,5 @@
 package com.eshi.addis.security.user;
 
-import com.eshi.addis.dto.RestaurantDTO;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.domain.Pageable;

@@ -17,12 +17,12 @@ import javax.validation.Valid;
 
 public interface FavouriteAPI {
     @ResponseStatus(HttpStatus.CREATED)
-    FavouriteDTO createFavourite(@RequestBody() Favourite favourite);
+    FavouriteDto createFavourite(@RequestBody() Favourite favourite);
 
     @ResponseStatus(HttpStatus.ACCEPTED)
     void removeFavourite(@PathVariable("id") long id);
 
-    ResponseEntity<PagedModel<FavouriteDTO>> getCustomerFavourites(@Parameter(description = "pagination object",
+    ResponseEntity<PagedModel<FavouriteDto>> getCustomerFavourites(@Parameter(description = "pagination object",
             schema = @Schema(implementation = Pageable.class))
                                                                    @Valid Pageable pageable
             , PagedResourcesAssembler assembler

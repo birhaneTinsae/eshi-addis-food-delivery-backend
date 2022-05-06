@@ -1,4 +1,4 @@
-package com.eshi.addis.rate;
+package com.eshi.addis.review.rate;
 
 import com.eshi.addis.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

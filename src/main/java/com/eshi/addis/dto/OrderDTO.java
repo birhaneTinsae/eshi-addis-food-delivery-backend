@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 public class OrderDTO {
     private String orderId;
-    private List<OrderMenuDTO> menus = new ArrayList<>();
+    private List<OrderMenuDTO> menus ;
     private String specialNote;
     private LocalDateTime deliveryAt=LocalDateTime.now();
     private Address deliveryLocation;

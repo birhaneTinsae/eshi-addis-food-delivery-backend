@@ -1,15 +1,16 @@
-package com.eshi.addis.dto;
+package com.eshi.addis.restaurant.branch;
 
 import com.eshi.addis.menu.Menu;
+import com.eshi.addis.restaurant.RestaurantDto;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.List;
 
 @Data
-public class CategoryDTO implements Serializable {
+public class BranchDto implements Serializable {
     private long id;
     private String title;
     private List<Menu> menus;
-    private RestaurantDTO restaurant;
+    private RestaurantDto restaurant;
 }

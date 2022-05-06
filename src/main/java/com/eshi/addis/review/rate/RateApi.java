@@ -1,9 +1,7 @@
-package com.eshi.addis.rate;
+package com.eshi.addis.review.rate;
 
-import com.eshi.addis.dto.RestaurantDTO;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedModel;
@@ -15,18 +13,18 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
-public interface RateAPI {
+public interface RateApi {
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    RateDTO createRate(@RequestBody RateDTO rate);
+    RateDto createRate(@RequestBody RateDto rate);
 
     @GetMapping("/{rateId}")
     @ResponseStatus(HttpStatus.OK)
-    RateDTO getRate(@PathVariable long rateId);
+    RateDto getRate(@PathVariable long rateId);
 
     @PutMapping("/{rateId}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    RateDTO updateRate(@PathVariable long rateId, @RequestBody Rate rate);
+    RateDto updateRate(@PathVariable long rateId, @RequestBody Rate rate);
 
     @DeleteMapping("/{rateId}")
     @ResponseStatus(HttpStatus.ACCEPTED)
@@ -34,7 +32,7 @@ public interface RateAPI {
 
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    ResponseEntity<PagedModel<RateDTO>> getRates(@Parameter(description = "pagination object",
+    ResponseEntity<PagedModel<RateDto>> getRates(@Parameter(description = "pagination object",
             schema = @Schema(implementation = Pageable.class))
                                                  @Valid Pageable pageable
             , PagedResourcesAssembler assembler

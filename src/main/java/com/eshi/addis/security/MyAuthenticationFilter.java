@@ -66,6 +66,7 @@ public class MyAuthenticationFilter extends UsernamePasswordAuthenticationFilter
         response.setContentType("application/json");
         response.getWriter().write(new ObjectMapper()
                 .writeValueAsString(new AuthenticationResponse(token,
+                        jwtUtil.getExpirationDateFromToken(token),
                         userDetails.getUsername(),
                         user.getFullName(),
                         user.isFirstLogin())));

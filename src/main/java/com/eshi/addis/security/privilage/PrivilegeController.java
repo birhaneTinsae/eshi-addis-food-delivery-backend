@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -25,8 +24,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletResponse;
 
-import static com.eshi.addis.utils.Util.dtoMapper;
-
 
 @RestController
 @RequestMapping("privileges")
@@ -36,7 +33,7 @@ import static com.eshi.addis.utils.Util.dtoMapper;
 public class PrivilegeController implements PrivilegeAPI {
     private final PrivilegeService privilegeService;
     private final ApplicationEventPublisher eventPublisher;
-    private final ModelMapper modelMapper;
+    private final PrivilegeMapper privilegeMapper;
 
     @Operation(summary = "Create new Privilege",
             description = "This API creates new Privilege",
@@ -48,7 +45,7 @@ public class PrivilegeController implements PrivilegeAPI {
             @ApiResponse(responseCode = "409", description = "Privilege already exists")})
     @Override
     public PrivilegeDTO createPrivilege(PrivilegeDTO privilege) {
-        return dtoMapper(privilegeService.createPrivilege(dtoMapper(privilege, Privilege.class, modelMapper)), PrivilegeDTO.class, modelMapper);
+        return privilegeMapper.privilegeDTO(privilegeService.createPrivilege(privilegeMapper.toPrivilege(privilege)));
     }
 
     @Operation(summary = "Find Privilege by ID",
@@ -60,7 +57,7 @@ public class PrivilegeController implements PrivilegeAPI {
             @ApiResponse(responseCode = "404", description = "Role not found")})
     @Override
     public PrivilegeDTO getPrivilege(long privilegeId) {
-        return dtoMapper(privilegeService.getPrivilege(privilegeId), PrivilegeDTO.class, modelMapper);
+        return privilegeMapper.privilegeDTO(privilegeService.getPrivilege(privilegeId));
 
     }
 
@@ -94,7 +91,7 @@ public class PrivilegeController implements PrivilegeAPI {
     public ResponseEntity<PagedModel<PrivilegeDTO>> getNearbyRestaurants(Pageable pageable, PagedResourcesAssembler assembler, UriComponentsBuilder uriBuilder, HttpServletResponse response) {
         eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<>(
                 PrivilegeDTO.class, uriBuilder, response, pageable.getPageNumber(), privilegeService.getPrivileges(pageable).getTotalPages(), pageable.getPageSize()));
-        return new ResponseEntity<PagedModel<PrivilegeDTO>>(assembler.toModel(privilegeService.getPrivileges(pageable).map(privilege -> dtoMapper(privilege, PrivilegeDTO.class, modelMapper))), HttpStatus.OK);
+        return new ResponseEntity<PagedModel<PrivilegeDTO>>(assembler.toModel(privilegeService.getPrivileges(pageable).map(privilegeMapper::privilegeDTO)), HttpStatus.OK);
 
     }
 

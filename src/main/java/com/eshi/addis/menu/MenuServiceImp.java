@@ -1,10 +1,14 @@
 package com.eshi.addis.menu;
 
 import com.eshi.addis.exception.EntityNotFoundException;
+import com.eshi.addis.menu.menuIngredient.MenuIngredient;
+import com.eshi.addis.menu.menuIngredient.MenuIngredientKey;
+import com.eshi.addis.menu.menuIngredient.MenuIngredientRepository;
 import com.eshi.addis.menu.modifier.MenuModifier;
 import com.eshi.addis.menu.modifier.MenuModifierDTO;
 import com.eshi.addis.menu.modifier.MenuModifierKey;
 import com.eshi.addis.menu.modifier.MenuModifierRepository;
+import com.eshi.addis.menu.size.MenuSize;
 import com.eshi.addis.menu.size.MenuSizeService;
 import com.eshi.addis.restaurant.category.CategoryService;
 import lombok.RequiredArgsConstructor;
@@ -25,15 +29,21 @@ public class MenuServiceImp implements MenuService {
     private final MenuSizeService menuSizeService;
     private final CategoryService categoryService;
     private final MenuModifierRepository menuModifierRepository;
+    private final MenuIngredientRepository menuIngredientRepository;
 
     @Override
     public Menu createMenu(long categoryId, Menu menu) {
         var category = categoryService.getCategory(categoryId);
         menu.setCategory(category);
-        var m = menuRepository.save(menu);
-        m.getSizes().forEach(size -> size.setMenu(m));
-        menuSizeService.store(m.getSizes());
-        return m;
+        menu = menuRepository.save(menu);
+        for (MenuIngredient m : menu.getIngredients()) {
+            menuIngredientRepository.save(new MenuIngredient(m.getMenu(), m.getIngredient(), m.isRequired()));
+        }
+        for (MenuSize size : menu.getSizes()) {
+            size.setMenu(menu);
+        }
+        menuSizeService.store(menu.getSizes());
+        return menu;
     }
 
     @Override
@@ -72,23 +82,16 @@ public class MenuServiceImp implements MenuService {
     @Override
     public Iterable<MenuModifier> addModifier(long menuId, List<MenuModifierDTO> modifiers) {
         var menu = getMenu(menuId);
-        List<MenuModifier> menuModifiers = modifiers.stream().map(modifier -> {
-            var menuModifier = new MenuModifier();
-            menuModifier.setMaxQty(modifier.getMaxQty());
-            menuModifier.setMinQty(modifier.getMinQty());
-            menuModifier.setMenu(menu);
-            menuModifier.setPrice(modifier.getPrice());
-            menuModifier.setModifier(modifier.getModifier());
-            return menuModifier;
-        }).collect(Collectors.toList());
+        List<MenuModifier> menuModifiers = modifiers
+                .parallelStream()
+                .map(modifier -> new MenuModifier(menu, modifier))
+                .collect(Collectors.toList());
         return menuModifierRepository.saveAll(menuModifiers);
     }
 
     @Override
-    public void deleteModifier(long menuId, long modifier) {
-        var menuModifierKey = new MenuModifierKey();
-        menuModifierKey.setMenuId(menuId);
-        menuModifierKey.setModifierId(modifier);
+    public void deleteModifier(long menuId, long modifierId) {
+        var menuModifierKey = new MenuModifierKey(menuId, modifierId);
         menuModifierRepository.deleteById(menuModifierKey);
     }
 

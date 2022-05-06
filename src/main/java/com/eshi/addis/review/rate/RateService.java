@@ -1,8 +1,7 @@
-package com.eshi.addis.rate;
+package com.eshi.addis.review.rate;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 

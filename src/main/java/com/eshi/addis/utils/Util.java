@@ -1,6 +1,5 @@
 package com.eshi.addis.utils;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 
@@ -9,9 +8,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Util {
@@ -31,15 +28,7 @@ public class Util {
         return BigDecimal.valueOf(noOfDays / dates);
     }
 
-    public static <S, T> List<T> mapList(List<S> source, Class<T> targetClass, ModelMapper modelMapper) {
-        return source.stream()
-                .map(element -> modelMapper.map(element, targetClass))
-                .collect(Collectors.toList());
-    }
 
-    public static <S, T> T dtoMapper(S source, Class<T> targetClass, ModelMapper modelMapper) {
-        return modelMapper.map(source, targetClass);
-    }
 
     public static String generateCouponCode(){
         var leftLimit=48;

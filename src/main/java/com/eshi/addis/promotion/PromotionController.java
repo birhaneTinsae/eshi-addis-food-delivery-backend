@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/promotions")
 @RequiredArgsConstructor
 public class PromotionController implements Common<Promotion,Promotion> {
     private final PromotionServiceImp promotionServiceImp;

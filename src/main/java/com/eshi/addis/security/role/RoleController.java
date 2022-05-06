@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -24,8 +23,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletResponse;
 
-import static com.eshi.addis.utils.Util.dtoMapper;
-
 
 @RestController
 @RequestMapping("roles")
@@ -34,7 +31,7 @@ import static com.eshi.addis.utils.Util.dtoMapper;
 public class RoleController implements RoleAPI {
 
     private final RoleService roleService;
-    private final ModelMapper modelMapper;
+    private final RoleMapper roleMapper;
     private final ApplicationEventPublisher eventPublisher;
 
     @IsAdmin
@@ -48,7 +45,7 @@ public class RoleController implements RoleAPI {
             @ApiResponse(responseCode = "409", description = "Role already exists")})
     @Override
     public RoleDTO createRole(RoleDTO role) {
-        return dtoMapper(roleService.createRole(dtoMapper(role, Role.class, modelMapper)), RoleDTO.class, modelMapper);
+        return roleMapper.toRoleDTO(roleService.createRole(roleMapper.toRole(role)));
     }
 
     @IsAdmin
@@ -61,7 +58,7 @@ public class RoleController implements RoleAPI {
             @ApiResponse(responseCode = "404", description = "Role not found")})
     @Override
     public RoleDTO getRole(long roleId) {
-        return dtoMapper(roleService.getRole(roleId), RoleDTO.class, modelMapper);
+        return roleMapper.toRoleDTO(roleService.getRole(roleId));
     }
 
     @IsAdmin
@@ -74,7 +71,7 @@ public class RoleController implements RoleAPI {
 
     @Override
     public RoleDTO updateRole(long roleId, RoleDTO role) {
-        return dtoMapper(roleService.updateRole(roleId, dtoMapper(role, Role.class, modelMapper)), RoleDTO.class, modelMapper);
+        return roleMapper.toRoleDTO(roleService.updateRole(roleId, roleMapper.toRole(role)));
     }
 
     @IsAdmin
@@ -96,7 +93,7 @@ public class RoleController implements RoleAPI {
     public ResponseEntity<PagedModel<RoleDTO>> getNearbyRestaurants(Pageable pageable, PagedResourcesAssembler assembler, UriComponentsBuilder uriBuilder, HttpServletResponse response) {
         eventPublisher.publishEvent(new PaginatedResultsRetrievedEvent<>(
                 Role.class, uriBuilder, response, pageable.getPageNumber(), roleService.getRoles(pageable).getTotalPages(), pageable.getPageSize()));
-        return new ResponseEntity<PagedModel<RoleDTO>>(assembler.toModel(roleService.getRoles(pageable).map(r -> dtoMapper(r, RoleDTO.class, modelMapper))), HttpStatus.OK);
+        return new ResponseEntity<PagedModel<RoleDTO>>(assembler.toModel(roleService.getRoles(pageable).map(roleMapper::toRoleDTO)), HttpStatus.OK);
 
     }
 }

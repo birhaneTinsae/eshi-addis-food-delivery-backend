@@ -12,5 +12,4 @@ import java.util.List;
 public class ApplicationProps {
 
     private List<String> allowedOrigin;
-    private String author;
 }
